@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세척 제어 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container dash-container">
+    <div class="dash-page-head">
+        <h2 class="page-title">세척 제어</h2>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <div class="card">
+        <div class="page-header">
+            <div>
+                <div class="side-label">현재 상태</div>
+                <div class="stat-value" id="statusLabel"
+                     th:text="${latest == null} ? '요청 이력 없음' : ${latest.status.label}">-</div>
+                <div class="stat-sub" id="statusTime"
+                     th:text="${latest != null and latest.status.name() == 'PENDING'}
+                               ? '요청 시각: ' + ${#temporals.format(latest.requestedAt, 'yyyy-MM-dd HH:mm:ss')}
+                               : (${latest != null and latest.completedAt != null}
+                                  ? '완료 시각: ' + ${#temporals.format(latest.completedAt, 'yyyy-MM-dd HH:mm:ss')}
+                                  : '')"></div>
+            </div>
+            <form th:action="@{/dashboard/cleaning/request}" method="post">
+                <button type="submit" class="btn btn-primary" id="requestBtn"
+                        th:disabled="${latest != null and latest.status.name() == 'PENDING'}">세척 시작</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 1.25rem;">
+        <div class="card-title">세척 이력</div>
+
+        <div th:if="${commandPage.empty}" class="empty-state">세척 요청 이력이 없습니다.</div>
+
+        <div th:if="${!commandPage.empty}" class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>상태</th>
+                        <th>요청 시각</th>
+                        <th>완료 시각</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cmd : ${commandPage.content}">
+                        <td>
+                            <span th:if="${cmd.status.name() == 'PENDING'}" class="badge badge-inactive" th:text="${cmd.status.label}"></span>
+                            <span th:if="${cmd.status.name() == 'DONE'}" class="badge badge-active" th:text="${cmd.status.label}"></span>
+                        </td>
+                        <td th:text="${#temporals.format(cmd.requestedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td th:text="${cmd.completedAt != null} ? ${#temporals.format(cmd.completedAt, 'yyyy-MM-dd HH:mm:ss')} : '-'"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:replace="~{fragments/pagination :: pagination(${commandPage}, ${pageBlock}, '/dashboard/cleaning')}"></div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let lastStatus = /*[[${latest != null ? latest.status.name() : 'NONE'}]]*/ 'NONE';
+
+    function poll() {
+        fetch('/api/cleaning/status').then(r => r.json()).then(data => {
+            if (!data || !data.status || data.status === 'NONE') return;
+
+            if (data.status !== lastStatus) {
+                location.reload();
+                return;
+            }
+
+            document.getElementById('statusLabel').textContent = data.statusLabel;
+            const timeEl = document.getElementById('statusTime');
+            if (data.status === 'PENDING') {
+                timeEl.textContent = '요청 시각: ' + data.requestedAt;
+            } else if (data.completedAt) {
+                timeEl.textContent = '완료 시각: ' + data.completedAt;
+            }
+            document.getElementById('requestBtn').disabled = (data.status === 'PENDING');
+        });
+    }
+    poll();
+    setInterval(poll, 3000);
+</script>
+</body>
+</html>

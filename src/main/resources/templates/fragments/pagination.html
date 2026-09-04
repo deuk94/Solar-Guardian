@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="pagination(pageObj, pageBlock, baseUrl)" class="pagination" th:if="${pageObj.totalPages > 1}">
+    <a th:if="${pageBlock.hasPrevBlock}"
+       th:href="@{__${baseUrl}__(page=${pageBlock.prevBlockPage})}"
+       class="page-link" aria-label="이전 페이지 묶음">&lsaquo;</a>
+    <span th:unless="${pageBlock.hasPrevBlock}" class="page-link disabled" aria-hidden="true">&lsaquo;</span>
+
+    <a th:each="i : ${#numbers.sequence(pageBlock.startPage, pageBlock.endPage)}"
+       th:href="@{__${baseUrl}__(page=${i})}"
+       th:text="${i + 1}"
+       th:class="${i == pageObj.number} ? 'page-link active' : 'page-link'"></a>
+
+    <a th:if="${pageBlock.hasNextBlock}"
+       th:href="@{__${baseUrl}__(page=${pageBlock.nextBlockPage})}"
+       class="page-link" aria-label="다음 페이지 묶음">&rsaquo;</a>
+    <span th:unless="${pageBlock.hasNextBlock}" class="page-link disabled" aria-hidden="true">&rsaquo;</span>
+</div>
+</body>
+</html>

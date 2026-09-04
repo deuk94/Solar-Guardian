@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알림/리포트 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container dash-container">
+    <div class="dash-page-head">
+        <h2 class="page-title">알림/리포트</h2>
+    </div>
+
+    <div th:if="${alertPage.empty}" class="card">
+        <div class="empty-state">발생한 알림이 없습니다.</div>
+    </div>
+
+    <div th:if="${!alertPage.empty}" class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>유형</th>
+                    <th>내용</th>
+                    <th>측정값</th>
+                    <th>발생 시각</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="alert : ${alertPage.content}">
+                    <td><span class="badge badge-inactive" th:text="${alert.alertType.label}"></span></td>
+                    <td th:text="${alert.message}"></td>
+                    <td th:text="${alert.currentVal} + 'A / ' + ${alert.voltageVal} + 'V'"></td>
+                    <td th:text="${#temporals.format(alert.regDt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pagination(${alertPage}, ${pageBlock}, '/dashboard/alerts')}"></div>
+</div>
+</body>
+</html>

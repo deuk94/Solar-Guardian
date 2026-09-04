@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container">
+    <div class="page-header">
+        <h2 class="page-title">공지사항</h2>
+        <!-- 시연용으로 회원 글쓰기 버튼 비활성화 — 관리자 전용으로 바꿀 때 복구
+        <a th:if="${session.loginUser != null}"
+           th:href="@{/notice/write}" class="btn btn-primary btn-sm">+ 글쓰기</a>
+        -->
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <div th:if="${noticePage.empty}" class="card">
+        <div class="empty-state">등록된 공지사항이 없습니다.</div>
+    </div>
+
+    <div th:if="${!noticePage.empty}" class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>번호</th>
+                    <th>제목</th>
+                    <th>작성자</th>
+                    <th>등록일</th>
+                    <th>조회수</th>
+                    <th>첨부</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="notice, iterStat : ${noticePage.content}">
+                    <td th:text="${noticePage.totalElements - (noticePage.number * noticePage.size) - iterStat.index}"></td>
+                    <td><a th:href="@{/notice/{id}(id=${notice.noticeId})}" th:text="${notice.title}"></a></td>
+                    <td th:text="${notice.regBy}"></td>
+                    <td th:text="${#temporals.format(notice.regDt, 'yyyy-MM-dd')}"></td>
+                    <td th:text="${notice.viewCnt}"></td>
+                    <td class="attach-icon" th:text="${!notice.files.isEmpty()} ? '📎' : ''"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pagination(${noticePage}, ${pageBlock}, '/notice/list')}"></div>
+</div>
+</body>
+</html>

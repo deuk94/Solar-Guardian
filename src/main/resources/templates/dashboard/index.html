@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대시보드 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container dash-container">
+    <div class="dash-page-head">
+        <h2 class="page-title">대시보드</h2>
+    </div>
+
+    <div class="stat-cards">
+        <div class="stat-card stat-blue stat-hero">
+            <div class="stat-icon stat-icon-blue" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <line x1="12" y1="2.5" x2="12" y2="5.5"></line>
+                    <line x1="12" y1="18.5" x2="12" y2="21.5"></line>
+                    <line x1="2.5" y1="12" x2="5.5" y2="12"></line>
+                    <line x1="18.5" y1="12" x2="21.5" y2="12"></line>
+                    <line x1="5.6" y1="5.6" x2="7.7" y2="7.7"></line>
+                    <line x1="16.3" y1="16.3" x2="18.4" y2="18.4"></line>
+                    <line x1="5.6" y1="18.4" x2="7.7" y2="16.3"></line>
+                    <line x1="16.3" y1="7.7" x2="18.4" y2="5.6"></line>
+                </svg>
+            </div>
+            <div class="stat-label">오늘 누적 발전량</div>
+            <div class="stat-value"><span id="totalEnergy">-</span> kWh</div>
+        </div>
+        <div class="stat-card stat-blue2">
+            <div class="stat-icon stat-icon-blue" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 4 14 11 14 10 22 20 10 13 10"></polygon></svg>
+            </div>
+            <div class="stat-label">발전 전력</div>
+            <div class="stat-value"><span id="currentPower">-</span> W</div>
+            <div class="stat-sub" id="lastUpdated">측정 대기 중</div>
+        </div>
+        <div class="stat-card stat-orange">
+            <div class="stat-icon stat-icon-orange" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="2 12 6 12 9 4 13 20 16 12 22 12"></polyline>
+                </svg>
+            </div>
+            <div class="stat-label">발전 전류</div>
+            <div class="stat-value"><span id="currentVal">-</span> A</div>
+            <div class="stat-sub">실시간</div>
+        </div>
+        <div class="stat-card stat-green">
+            <div class="stat-icon stat-icon-green" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2.5" y="8" width="16" height="8" rx="1.5"></rect>
+                    <line x1="21.5" y1="10.5" x2="21.5" y2="13.5"></line>
+                    <rect x="4.5" y="10" width="8" height="4" fill="currentColor" stroke="none"></rect>
+                </svg>
+            </div>
+            <div class="stat-label">발전 전압</div>
+            <div class="stat-value"><span id="voltageVal">-</span> V</div>
+            <div class="stat-sub">실시간</div>
+        </div>
+    </div>
+
+    <div class="dash-charts-row">
+        <div class="card chart-card">
+            <div class="chart-card-head">
+                <div>
+                    <div class="card-title-row"><span class="chart-dot chart-dot-line"></span><span class="card-title">시간당 발전량</span></div>
+                    <div class="chart-sub">오늘 기준 · Wh</div>
+                </div>
+            </div>
+            <canvas id="hourlyChart"></canvas>
+        </div>
+        <div class="card chart-card">
+            <div class="chart-card-head">
+                <div>
+                    <div class="card-title-row"><span class="chart-dot chart-dot-bar"></span><span class="card-title">일간 발전량</span></div>
+                    <div class="chart-sub">최근 7일 · Wh</div>
+                </div>
+            </div>
+            <canvas id="dailyChart"></canvas>
+        </div>
+    </div>
+
+    <div class="dash-stats-row">
+        <div class="card side-card">
+            <div class="side-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                    <line x1="3" y1="9.5" x2="21" y2="9.5"></line>
+                    <line x1="8" y1="3" x2="8" y2="7"></line>
+                    <line x1="16" y1="3" x2="16" y2="7"></line>
+                </svg>
+            </div>
+            <div class="side-body">
+                <div class="side-label">어제 발전량</div>
+                <div class="side-value"><span id="yesterdayEnergy">-</span> kWh</div>
+            </div>
+        </div>
+        <div class="card side-card">
+            <div class="side-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="5" cy="6" r="1" fill="currentColor" stroke="none"></circle>
+                    <line x1="9" y1="6" x2="21" y2="6"></line>
+                    <circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"></circle>
+                    <line x1="9" y1="12" x2="21" y2="12"></line>
+                    <circle cx="5" cy="18" r="1" fill="currentColor" stroke="none"></circle>
+                    <line x1="9" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </div>
+            <div class="side-body">
+                <div class="side-label">오늘 측정 건수</div>
+                <div class="side-value"><span id="readingCount">-</span> 건</div>
+            </div>
+        </div>
+        <div class="card side-card">
+            <div class="side-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="3" x2="12" y2="21"></line>
+                    <polyline points="7.5 7.5 12 3 16.5 7.5"></polyline>
+                    <polyline points="7.5 16.5 12 21 16.5 16.5"></polyline>
+                </svg>
+            </div>
+            <div class="side-body">
+                <div class="side-label">오늘 최고 / 최저 전류</div>
+                <div class="side-value side-value-pair"><span id="maxCurrent">-</span> / <span id="minCurrent">-</span>&nbsp;A</div>
+            </div>
+        </div>
+        <div class="card side-card">
+            <div class="side-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="3" x2="12" y2="21"></line>
+                    <polyline points="7.5 7.5 12 3 16.5 7.5"></polyline>
+                    <polyline points="7.5 16.5 12 21 16.5 16.5"></polyline>
+                </svg>
+            </div>
+            <div class="side-body">
+                <div class="side-label">오늘 최고 / 최저 전압</div>
+                <div class="side-value side-value-pair"><span id="maxVoltage">-</span> / <span id="minVoltage">-</span>&nbsp;V</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card alert-card">
+        <div class="page-header">
+            <div class="card-title" style="margin-bottom: 0;">최근 알림</div>
+            <a th:href="@{/dashboard/alerts}" class="btn btn-outline btn-sm">전체보기</a>
+        </div>
+        <div id="alertList" class="alert-list">
+            <div class="empty-state">알림을 불러오는 중...</div>
+        </div>
+    </div>
+
+    <div class="card weather-card">
+        <div class="weather-card-head">
+            <div class="card-title">날씨</div>
+            <span class="weather-region">경상남도 진주</span>
+        </div>
+
+        <div class="weather-tabs" id="weatherTabs">
+            <button type="button" class="weather-tab active" data-mode="temp">기온</button>
+            <button type="button" class="weather-tab" data-mode="precip">강수</button>
+            <button type="button" class="weather-tab" data-mode="wind">바람</button>
+            <button type="button" class="weather-tab" data-mode="humidity">습도</button>
+        </div>
+
+        <div class="weather-hourly-wrap">
+            <button type="button" class="weather-nav-btn weather-nav-prev" id="weatherPrev" aria-label="이전 시간">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"></polyline></svg>
+            </button>
+            <div class="weather-hour weather-hour-labels" id="weatherHourLabels"></div>
+            <div class="weather-hourly-scroll" id="weatherHourlyScroll">
+                <div class="weather-hourly-track" id="weatherHourly">
+                    <div class="empty-state">날씨 정보를 불러오는 중...</div>
+                </div>
+            </div>
+            <button type="button" class="weather-nav-btn weather-nav-next" id="weatherNext" aria-label="다음 시간">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+            </button>
+        </div>
+
+        <div class="weather-daily-title">주간예보</div>
+        <div class="weather-daily" id="weatherDaily"></div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const chart = new Chart(document.getElementById('hourlyChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '발전량(Wh)',
+                data: [],
+                borderColor: '#5BAED4',
+                backgroundColor: 'rgba(91, 174, 212, 0.15)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            aspectRatio: 1.4,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Wh' } } }
+        }
+    });
+
+    const dailyChart = new Chart(document.getElementById('dailyChart'), {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '발전량(Wh)',
+                data: [],
+                backgroundColor: 'rgba(242, 169, 59, 0.55)',
+                borderColor: '#F2A93B',
+                borderWidth: 1,
+                borderRadius: 4,
+                maxBarThickness: 36
+            }]
+        },
+        options: {
+            responsive: true,
+            aspectRatio: 1.4,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Wh' } } }
+        }
+    });
+
+    function fmt(v) {
+        return v === null || v === undefined ? '-' : v;
+    }
+
+    function updateLatest(data) {
+        if (!data || data.current === undefined) return;
+        document.getElementById('currentVal').textContent = data.current;
+        document.getElementById('voltageVal').textContent = data.voltage;
+        document.getElementById('currentPower').textContent = data.power;
+        document.getElementById('lastUpdated').textContent = '갱신 ' + data.measuredAt.slice(11);
+    }
+
+    function updateTodayStats(stats) {
+        document.getElementById('totalEnergy').textContent = (stats.totalEnergyWh / 1000).toFixed(2);
+        document.getElementById('readingCount').textContent = stats.readingCount;
+        document.getElementById('maxCurrent').textContent = fmt(stats.maxCurrent);
+        document.getElementById('minCurrent').textContent = fmt(stats.minCurrent);
+        document.getElementById('maxVoltage').textContent = fmt(stats.maxVoltage);
+        document.getElementById('minVoltage').textContent = fmt(stats.minVoltage);
+
+        chart.data.labels = stats.hourly.map(p => p.hour + '시');
+        chart.data.datasets[0].data = stats.hourly.map(p => p.energyWh);
+        chart.update();
+    }
+
+    function updateDailyStats(data) {
+        dailyChart.data.labels = data.daily.map(p => p.date.slice(5));
+        dailyChart.data.datasets[0].data = data.daily.map(p => p.energyWh);
+        dailyChart.update();
+
+        const yesterday = data.daily[data.daily.length - 2];
+        document.getElementById('yesterdayEnergy').textContent =
+            yesterday ? (yesterday.energyWh / 1000).toFixed(2) : '-';
+    }
+
+    function updateAlerts(list) {
+        const el = document.getElementById('alertList');
+        if (!list || list.length === 0) {
+            el.innerHTML = '<div class="empty-state">발생한 알림이 없습니다.</div>';
+            return;
+        }
+        el.innerHTML = list.map(a =>
+            '<div class="alert-item">' +
+                '<span class="alert-dot"></span>' +
+                '<strong>' + a.typeLabel + '</strong>' +
+                '<span class="alert-msg">' + a.message + '</span>' +
+                '<span class="alert-time">' + a.regDt + '</span>' +
+            '</div>'
+        ).join('');
+    }
+
+    function poll() {
+        fetch('/api/sensor/latest').then(r => r.json()).then(updateLatest);
+        fetch('/api/sensor/today-hourly').then(r => r.json()).then(updateTodayStats);
+        fetch('/api/sensor/daily').then(r => r.json()).then(updateDailyStats);
+        fetch('/api/alert/recent').then(r => r.json()).then(updateAlerts);
+    }
+
+    const WEATHER_ICON_FILE = {
+        CLEAR: 'sunny.png',
+        CLEAR_NIGHT: 'night.png',
+        PARTLY_CLOUDY: 'partly-cloudy.png',
+        PARTLY_CLOUDY_NIGHT: 'partly-cloudy-night.png',
+        CLOUDY: 'cloudy.png',
+        RAIN: 'rain.png',
+        SHOWER: 'shower.png',
+        SNOW: 'snow.png'
+    };
+
+    function skyIcon(sky) {
+        const file = WEATHER_ICON_FILE[sky] || WEATHER_ICON_FILE.CLOUDY;
+        return '<img src="/images/weather/' + file + '" alt="" loading="lazy">';
+    }
+
+    const WEATHER_COL_W = 58;
+    const WEATHER_GRAPH_H = 44;
+
+    let LAST_HOURLY = [];
+    let WEATHER_MODE = 'temp';
+
+    function timeBlock(h) {
+        return h.dayMarker
+            ? '<div class="time"><span class="time-marker">' + h.dayMarker + '</span></div>'
+            : '<div class="time">' + h.label + '</div>';
+    }
+
+    // 값 배열을 이어지는 꺾은선(+옵션으로 영역 채우기) svg로 그린다 (기온/습도용)
+    function buildLineGraph(hours, valueFn, color, filled) {
+        const totalW = hours.length * WEATHER_COL_W;
+        const vals = hours.map(valueFn).filter(v => v !== null && v !== undefined);
+        const min = Math.min.apply(null, vals);
+        const max = Math.max.apply(null, vals);
+        const pad = 8;
+        const yFor = v => {
+            if (v === null || v === undefined || max === min) return WEATHER_GRAPH_H / 2;
+            return pad + (WEATHER_GRAPH_H - pad * 2) * (1 - (v - min) / (max - min));
+        };
+        const points = hours.map((h, i) => [i * WEATHER_COL_W + WEATHER_COL_W / 2, yFor(valueFn(h))]);
+        const linePoints = points.map(p => p.join(',')).join(' ');
+        const dots = points.map(p =>
+            '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="' + color + '"></circle>'
+        ).join('');
+        let area = '';
+        if (filled) {
+            const first = points[0], last = points[points.length - 1];
+            const path = 'M' + first[0] + ',' + WEATHER_GRAPH_H + ' L' +
+                points.map(p => p.join(',')).join(' L') + ' L' + last[0] + ',' + WEATHER_GRAPH_H + ' Z';
+            area = '<path d="' + path + '" fill="' + color + '" opacity="0.22"></path>';
+        }
+        return '<svg class="weather-hourly-graph" width="' + totalW + '" height="' + WEATHER_GRAPH_H +
+            '" viewBox="0 0 ' + totalW + ' ' + WEATHER_GRAPH_H + '">' +
+                area +
+                '<polyline points="' + linePoints + '" fill="none" stroke="' + color + '" stroke-width="2" ' +
+                    'stroke-linejoin="round" stroke-linecap="round"></polyline>' +
+                dots +
+            '</svg>';
+    }
+
+    function windArrowIcon(deg) {
+        const rot = deg === null || deg === undefined ? 0 : (deg + 180) % 360;
+        return '<svg width="15" height="15" viewBox="0 0 24 24" style="transform:rotate(' + rot + 'deg)" ' +
+            'fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
+            '<line x1="12" y1="20" x2="12" y2="4"></line><polyline points="6 10 12 4 18 10"></polyline></svg>';
+    }
+
+    function dropletIcon(pct) {
+        const p = pct === null || pct === undefined ? 0 : Math.max(0, Math.min(100, pct));
+        const drop = 'M12 2C12 2 5 11 5 15.5C5 19.09 8.13 22 12 22C15.87 22 19 19.09 19 15.5C19 11 12 2 12 2Z';
+        const fillY = 22 - (20 * p / 100);
+        const id = 'wxdrop' + Math.random().toString(36).slice(2, 8);
+        return '<svg width="18" height="18" viewBox="0 0 24 24">' +
+            '<defs><clipPath id="' + id + '"><rect x="0" y="' + fillY + '" width="24" height="' + (22 - fillY) + '"></rect></clipPath></defs>' +
+            '<path d="' + drop + '" fill="none" stroke="#BBD9E8" stroke-width="1.6"></path>' +
+            '<path d="' + drop + '" fill="#5BAED4" clip-path="url(#' + id + ')"></path>' +
+        '</svg>';
+    }
+
+    function setLabels(html) {
+        document.getElementById('weatherHourLabels').innerHTML = html;
+    }
+
+    function renderTempMode(hours, track) {
+        const totalW = hours.length * WEATHER_COL_W;
+        const svg = buildLineGraph(hours, h => h.temp, '#5BAED4', false);
+        const cols = hours.map(h =>
+            '<div class="weather-hour" style="width:' + WEATHER_COL_W + 'px">' +
+                '<div class="temp">' + fmt(h.temp) + '°</div>' +
+                '<div class="graph-spacer"></div>' +
+                '<div class="icon">' + skyIcon(h.sky) + '</div>' +
+                timeBlock(h) +
+            '</div>'
+        ).join('');
+        setLabels('');
+        track.style.width = totalW + 'px';
+        track.innerHTML = svg + cols;
+    }
+
+    function renderHumidityMode(hours, track) {
+        const totalW = hours.length * WEATHER_COL_W;
+        const svg = buildLineGraph(hours, h => h.humidity, '#5BAED4', true);
+        const cols = hours.map(h =>
+            '<div class="weather-hour" style="width:' + WEATHER_COL_W + 'px">' +
+                '<div class="temp">' + fmt(h.humidity) + (h.humidity != null ? '%' : '') + '</div>' +
+                '<div class="graph-spacer"></div>' +
+                timeBlock(h) +
+            '</div>'
+        ).join('');
+        setLabels(
+            '<div class="label-row temp">습도 %</div>' +
+            '<div class="label-row graph-spacer"></div>' +
+            '<div class="label-row time">&nbsp;</div>'
+        );
+        track.style.width = totalW + 'px';
+        track.innerHTML = svg + cols;
+    }
+
+    function renderWindMode(hours, track) {
+        const totalW = hours.length * WEATHER_COL_W;
+        const maxSpeed = Math.max.apply(null, hours.map(h => h.windSpeed || 0).concat([1]));
+        const cols = hours.map(h => {
+            const barH = h.windSpeed == null ? 0 : Math.max(3, Math.round((h.windSpeed / maxSpeed) * 22));
+            return '<div class="weather-hour" style="width:' + WEATHER_COL_W + 'px">' +
+                '<div class="wind-dir">' + windArrowIcon(h.windDeg) + '<span>' + (h.windDir || '-') + '</span></div>' +
+                '<div class="temp">' + fmt(h.windSpeed) + '</div>' +
+                '<div class="wind-bar-track"><div class="wind-bar" style="height:' + barH + 'px"></div></div>' +
+                timeBlock(h) +
+            '</div>';
+        }).join('');
+        setLabels(
+            '<div class="label-row wind-dir">풍향</div>' +
+            '<div class="label-row temp">풍속 m/s</div>' +
+            '<div class="label-row wind-bar-track"></div>' +
+            '<div class="label-row time">&nbsp;</div>'
+        );
+        track.style.width = totalW + 'px';
+        track.innerHTML = cols;
+    }
+
+    function renderPrecipMode(hours, track) {
+        const totalW = hours.length * WEATHER_COL_W;
+        const cols = hours.map(h =>
+            '<div class="weather-hour" style="width:' + WEATHER_COL_W + 'px">' +
+                '<div class="precip-prob">' + dropletIcon(h.pop) +
+                    '<span class="pct">' + fmt(h.pop) + (h.pop != null ? '%' : '') + '</span></div>' +
+                '<div class="precip-amt"><span class="pcp-badge' + (h.pcp && h.pcp !== '0' ? ' has-rain' : '') + '">' +
+                    (h.pcp || '0') + '</span></div>' +
+                timeBlock(h) +
+            '</div>'
+        ).join('');
+        setLabels(
+            '<div class="label-row precip-prob">확률 %</div>' +
+            '<div class="label-row precip-amt">수량 mm</div>' +
+            '<div class="label-row time">&nbsp;</div>'
+        );
+        track.style.width = totalW + 'px';
+        track.innerHTML = cols;
+    }
+
+    function renderHourlyForMode() {
+        const track = document.getElementById('weatherHourly');
+        const hours = LAST_HOURLY;
+        if (!hours || hours.length === 0) {
+            setLabels('');
+            track.style.width = 'auto';
+            track.innerHTML = '<div class="empty-state">날씨 정보가 없습니다.</div>';
+            return;
+        }
+        if (WEATHER_MODE === 'humidity') renderHumidityMode(hours, track);
+        else if (WEATHER_MODE === 'wind') renderWindMode(hours, track);
+        else if (WEATHER_MODE === 'precip') renderPrecipMode(hours, track);
+        else renderTempMode(hours, track);
+    }
+
+    function renderHourly(hours) {
+        LAST_HOURLY = hours || [];
+        renderHourlyForMode();
+    }
+
+    document.querySelectorAll('.weather-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.weather-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            WEATHER_MODE = btn.dataset.mode;
+            document.getElementById('weatherHourlyScroll').scrollLeft = 0;
+            renderHourlyForMode();
+        });
+    });
+
+    function renderDaily(days) {
+        const el = document.getElementById('weatherDaily');
+        el.innerHTML = (days || []).map(d => {
+            const dateShort = d.date.slice(5).replace('-', '.') + '.';
+            return '<div class="weather-day-row">' +
+                '<div class="weather-day-label"><span class="name">' + d.label + '</span>' +
+                    '<span class="date">' + dateShort + '</span></div>' +
+                '<div class="weather-day-cell">' + skyIcon(d.amSky) +
+                    '<span class="weather-day-pop">' + fmt(d.amPop) + (d.amPop != null ? '%' : '') + '</span></div>' +
+                '<div class="weather-day-cell">' + skyIcon(d.pmSky) +
+                    '<span class="weather-day-pop">' + fmt(d.pmPop) + (d.pmPop != null ? '%' : '') + '</span></div>' +
+                '<div class="weather-day-temps"><span class="min">' + fmt(d.minTemp) + '°</span>' +
+                    '<span class="max">' + fmt(d.maxTemp) + '°</span></div>' +
+            '</div>';
+        }).join('');
+    }
+
+    function updateWeather(data) {
+        renderHourly(data.hourly);
+        renderDaily(data.daily);
+    }
+
+    document.getElementById('weatherPrev').addEventListener('click', () => {
+        document.getElementById('weatherHourlyScroll').scrollBy({ left: -WEATHER_COL_W * 3, behavior: 'smooth' });
+    });
+    document.getElementById('weatherNext').addEventListener('click', () => {
+        document.getElementById('weatherHourlyScroll').scrollBy({ left: WEATHER_COL_W * 3, behavior: 'smooth' });
+    });
+
+    fetch('/api/weather/forecast').then(r => r.json()).then(updateWeather);
+
+    poll();
+    setInterval(poll, 10000);
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${notice.title} + ' - Solar'"></title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container-md">
+    <div class="page-header">
+        <h2 class="page-title">공지사항</h2>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <div class="card">
+        <h3 class="post-title" th:text="${notice.title}"></h3>
+
+        <div class="post-meta">
+            <span>작성자<strong th:text="${notice.regBy}"></strong></span>
+            <span>등록일<strong th:text="${#temporals.format(notice.regDt, 'yyyy-MM-dd HH:mm')}"></strong></span>
+            <span>조회수<strong th:text="${notice.viewCnt}"></strong></span>
+        </div>
+
+        <div th:if="${!notice.files.isEmpty()}" class="post-attach">
+            <div th:each="file : ${notice.files}">
+                <span class="attach-icon">📎</span>
+                <a th:href="@{/notice/file/{id}(id=${file.fileId})}" th:text="${file.originName}"></a>
+            </div>
+        </div>
+
+        <div class="post-content" th:text="${notice.content}"></div>
+
+        <div th:if="${!notice.files.?[image].isEmpty()}" class="post-images">
+            <img th:each="file : ${notice.files}" th:if="${file.image}"
+                 th:src="@{/notice/file/{id}/view(id=${file.fileId})}"
+                 th:alt="${file.originName}" class="post-image">
+        </div>
+
+        <div th:each="file : ${notice.files}" th:if="${file.video}" class="post-video">
+            <video controls class="post-video-player">
+                <source th:src="@{/notice/file/{id}/view(id=${file.fileId})}">
+                이 브라우저는 동영상 재생을 지원하지 않습니다.
+            </video>
+            <div class="post-media-caption" th:text="${file.originName}"></div>
+        </div>
+
+        <div th:each="file : ${notice.files}" th:if="${file.pdf}" class="post-pdf">
+            <div class="post-media-caption" th:text="${file.originName}"></div>
+            <iframe th:src="@{/notice/file/{id}/view(id=${file.fileId})}" class="post-pdf-viewer"></iframe>
+        </div>
+
+        <div class="post-nav">
+            <div class="post-nav-item" th:if="${prevNotice != null}">
+                <span class="post-nav-label">▲ 이전글</span>
+                <a th:href="@{/notice/{id}(id=${prevNotice.noticeId})}" th:text="${prevNotice.title}"></a>
+            </div>
+            <div class="post-nav-item" th:if="${nextNotice != null}">
+                <span class="post-nav-label">▼ 다음글</span>
+                <a th:href="@{/notice/{id}(id=${nextNotice.noticeId})}" th:text="${nextNotice.title}"></a>
+            </div>
+        </div>
+
+        <div class="action-bar-split">
+            <div class="action-bar">
+                <!-- 시연용으로 수정/삭제 버튼 비활성화 — 관리자 전용으로 바꿀 때 복구
+                <th:block th:if="${session.loginUser != null && (session.loginUser.loginId == notice.regBy || session.loginUser.role.roleNm == 'ROLE_ADMIN')}">
+                    <a th:href="@{/notice/{id}/edit(id=${notice.noticeId})}" class="btn btn-primary">수정</a>
+                    <form th:action="@{/notice/{id}/delete(id=${notice.noticeId})}" method="post"
+                          onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                        <button type="submit" class="btn btn-danger">삭제</button>
+                    </form>
+                </th:block>
+                -->
+            </div>
+            <a th:href="@{/notice/list}" class="btn btn-outline">목록</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

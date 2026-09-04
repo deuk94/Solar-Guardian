@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${board.title} + ' - Solar'"></title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container-md">
+    <div class="page-header">
+        <h2 class="page-title">게시판</h2>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <div class="card">
+        <h3 class="post-title" th:text="${board.title}"></h3>
+
+        <div class="post-meta">
+            <span>작성자<strong th:text="${board.regBy}"></strong></span>
+            <span>등록일<strong th:text="${#temporals.format(board.regDt, 'yyyy-MM-dd HH:mm')}"></strong></span>
+            <span>조회수<strong th:text="${board.viewCnt}"></strong></span>
+        </div>
+
+        <div class="post-content" th:text="${board.content}"></div>
+
+        <div class="action-bar-split">
+            <div class="action-bar">
+                <th:block th:if="${session.loginUser != null
+                    && (session.loginUser.loginId == board.regBy
+                        || session.loginUser.role.roleNm == 'ROLE_ADMIN')}">
+                    <a th:href="@{/board/{id}/edit(id=${board.boardId})}" class="btn btn-primary">수정</a>
+                    <form th:action="@{/board/{id}/delete(id=${board.boardId})}" method="post"
+                          onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                        <button type="submit" class="btn btn-danger">삭제</button>
+                    </form>
+                </th:block>
+            </div>
+            <a th:href="@{/board/list}" class="btn btn-outline">목록</a>
+        </div>
+    </div>
+
+    <!-- 댓글 섹션 -->
+    <div class="comment-section">
+        <h4 class="comment-title">댓글 <span id="commentCount" th:text="${comments.size()}"></span>개</h4>
+
+        <div id="commentList">
+            <div th:each="comment : ${comments}"
+                 th:id="'comment-' + ${comment.commentId}"
+                 class="comment-item">
+                <div class="comment-header">
+                    <span class="comment-author" th:text="${comment.regBy}"></span>
+                    <span class="comment-date" th:text="${#temporals.format(comment.regDt, 'yyyy-MM-dd HH:mm')}"></span>
+                    <th:block th:if="${session.loginUser != null
+                        && (session.loginUser.loginId == comment.regBy
+                            || session.loginUser.role.roleNm == 'ROLE_ADMIN')}">
+                        <button class="btn btn-outline btn-sm comment-edit-btn"
+                                th:data-id="${comment.commentId}">수정</button>
+                        <button class="btn btn-danger btn-sm comment-delete-btn"
+                                th:data-id="${comment.commentId}">삭제</button>
+                    </th:block>
+                </div>
+                <!-- 보기 모드 -->
+                <div class="comment-content" th:text="${comment.content}"></div>
+                <!-- 수정 모드 (기본 숨김) -->
+                <div class="comment-edit-area" style="display:none;">
+                    <textarea class="form-control comment-edit-input" rows="3"></textarea>
+                    <div class="comment-edit-footer">
+                        <span class="comment-edit-error field-error" style="display:none;"></span>
+                        <div>
+                            <button class="btn btn-primary btn-sm comment-save-btn"
+                                    th:data-id="${comment.commentId}">저장</button>
+                            <button class="btn btn-outline btn-sm comment-cancel-btn">취소</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${comments.empty}" id="emptyComment" class="comment-empty">
+                첫 번째 댓글을 작성해 보세요.
+            </div>
+        </div>
+
+        <div th:if="${session.loginUser != null}" class="comment-form">
+            <textarea id="commentInput" class="form-control" rows="3"
+                      placeholder="댓글을 입력하세요 (최대 500자)"></textarea>
+            <div class="comment-form-footer">
+                <span id="commentError" class="field-error" style="display:none;"></span>
+                <button id="commentSubmit" class="btn btn-primary btn-sm">등록</button>
+            </div>
+        </div>
+        <div th:if="${session.loginUser == null}" class="comment-login-notice">
+            댓글을 작성하려면 <a th:href="@{/user/login}">로그인</a>이 필요합니다.
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const boardId = [[${board.boardId}]];
+    const loginId = /*[[${session.loginUser?.loginId}]]*/ null;
+
+    /* ── 댓글 등록 ── */
+    const submitBtn = document.getElementById('commentSubmit');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', async () => {
+            const input   = document.getElementById('commentInput');
+            const errSpan = document.getElementById('commentError');
+            const content = input.value.trim();
+
+            errSpan.style.display = 'none';
+            if (!content) {
+                errSpan.textContent = '댓글 내용을 입력해주세요.';
+                errSpan.style.display = 'inline';
+                return;
+            }
+
+            const res  = await fetch(`/api/board/${boardId}/comment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                errSpan.textContent = data.error || '댓글 등록에 실패했습니다.';
+                errSpan.style.display = 'inline';
+                return;
+            }
+
+            appendComment(data);
+            input.value = '';
+
+            const empty = document.getElementById('emptyComment');
+            if (empty) empty.remove();
+
+            const cnt = document.getElementById('commentCount');
+            cnt.textContent = parseInt(cnt.textContent) + 1;
+        });
+    }
+
+    /* ── 이벤트 위임 (수정 시작 / 저장 / 취소 / 삭제) ── */
+    document.getElementById('commentList').addEventListener('click', async (e) => {
+        const btn = e.target;
+
+        /* 수정 버튼 클릭 → 인라인 편집 모드 진입 */
+        if (btn.classList.contains('comment-edit-btn')) {
+            const item       = btn.closest('.comment-item');
+            const contentDiv = item.querySelector('.comment-content');
+            const editArea   = item.querySelector('.comment-edit-area');
+            const editInput  = item.querySelector('.comment-edit-input');
+            const editErr    = item.querySelector('.comment-edit-error');
+
+            editInput.value = contentDiv.textContent;
+            editErr.style.display = 'none';
+            contentDiv.style.display = 'none';
+            editArea.style.display   = 'block';
+            item.querySelector('.comment-edit-btn').style.display   = 'none';
+            item.querySelector('.comment-delete-btn').style.display = 'none';
+            editInput.focus();
+            return;
+        }
+
+        /* 취소 버튼 클릭 → 보기 모드 복귀 */
+        if (btn.classList.contains('comment-cancel-btn')) {
+            const item       = btn.closest('.comment-item');
+            item.querySelector('.comment-content').style.display  = 'block';
+            item.querySelector('.comment-edit-area').style.display = 'none';
+            item.querySelector('.comment-edit-btn').style.display   = '';
+            item.querySelector('.comment-delete-btn').style.display = '';
+            return;
+        }
+
+        /* 저장 버튼 클릭 → PUT 요청 */
+        if (btn.classList.contains('comment-save-btn')) {
+            const commentId  = btn.dataset.id;
+            const item       = btn.closest('.comment-item');
+            const editInput  = item.querySelector('.comment-edit-input');
+            const editErr    = item.querySelector('.comment-edit-error');
+            const content    = editInput.value.trim();
+
+            editErr.style.display = 'none';
+            if (!content) {
+                editErr.textContent = '댓글 내용을 입력해주세요.';
+                editErr.style.display = 'inline';
+                return;
+            }
+
+            const res  = await fetch(`/api/board/comment/${commentId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                editErr.textContent = data.error || '댓글 수정에 실패했습니다.';
+                editErr.style.display = 'inline';
+                return;
+            }
+
+            const contentDiv = item.querySelector('.comment-content');
+            contentDiv.textContent = data.content;
+            contentDiv.style.display = 'block';
+            item.querySelector('.comment-edit-area').style.display   = 'none';
+            item.querySelector('.comment-edit-btn').style.display    = '';
+            item.querySelector('.comment-delete-btn').style.display  = '';
+            return;
+        }
+
+        /* 삭제 버튼 클릭 */
+        if (btn.classList.contains('comment-delete-btn')) {
+            if (!confirm('댓글을 삭제하시겠습니까?')) return;
+
+            const commentId = btn.dataset.id;
+            const res  = await fetch(`/api/board/comment/${commentId}`, { method: 'DELETE' });
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.error || '댓글 삭제에 실패했습니다.');
+                return;
+            }
+
+            document.getElementById(`comment-${commentId}`).remove();
+
+            const cnt  = document.getElementById('commentCount');
+            const next = parseInt(cnt.textContent) - 1;
+            cnt.textContent = next;
+
+            if (next === 0) {
+                const list  = document.getElementById('commentList');
+                const empty = document.createElement('div');
+                empty.id = 'emptyComment';
+                empty.className = 'comment-empty';
+                empty.textContent = '첫 번째 댓글을 작성해 보세요.';
+                list.appendChild(empty);
+            }
+        }
+    });
+
+    /* ── 새 댓글 DOM 추가 ── */
+    function appendComment(data) {
+        const list = document.getElementById('commentList');
+        const div  = document.createElement('div');
+        div.id = `comment-${data.commentId}`;
+        div.className = 'comment-item';
+
+        const canManage = loginId && loginId === data.regBy;
+        const actionBtns = canManage ? `
+            <button class="btn btn-outline btn-sm comment-edit-btn" data-id="${data.commentId}">수정</button>
+            <button class="btn btn-danger btn-sm comment-delete-btn" data-id="${data.commentId}">삭제</button>` : '';
+
+        div.innerHTML = `
+            <div class="comment-header">
+                <span class="comment-author">${escHtml(data.regBy)}</span>
+                <span class="comment-date">${escHtml(data.regDt)}</span>
+                ${actionBtns}
+            </div>
+            <div class="comment-content">${escHtml(data.content)}</div>
+            <div class="comment-edit-area" style="display:none;">
+                <textarea class="form-control comment-edit-input" rows="3"></textarea>
+                <div class="comment-edit-footer">
+                    <span class="comment-edit-error field-error" style="display:none;"></span>
+                    <div>
+                        <button class="btn btn-primary btn-sm comment-save-btn" data-id="${data.commentId}">저장</button>
+                        <button class="btn btn-outline btn-sm comment-cancel-btn">취소</button>
+                    </div>
+                </div>
+            </div>`;
+        list.appendChild(div);
+    }
+
+    function escHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+</script>
+</body>
+</html>

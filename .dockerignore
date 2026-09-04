@@ -1,0 +1,15 @@
+.git
+.gitignore
+.gradle
+build
+uploads
+*.md
+.idea
+.vscode
+HELP.md
+.claude
+ai
+raspberrypi
+arduino
+sql
+mysql-init

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="page-center login-page">
+  <div class="login-stack">
+    <div class="login-brand">
+        <img src="/images/brand/logo-icon.png" alt="Solar Guardian" class="login-brand-icon">
+        <img src="/images/brand/logo-wordmark.png" alt="Solar Guardian - 가정용 태양광 패널 지능형 관리 시스템" class="login-brand-wordmark">
+    </div>
+    <div class="card">
+        <h2 class="card-title">로그인</h2>
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+        <form th:action="@{/user/login}" th:object="${userLoginDto}" method="post">
+            <div class="form-group">
+                <label for="loginId">아이디</label>
+                <input type="text" id="loginId" th:field="*{loginId}"
+                       class="form-control" placeholder="아이디를 입력하세요">
+                <span th:if="${#fields.hasErrors('loginId')}" th:errors="*{loginId}" class="field-error"></span>
+            </div>
+            <div class="form-group">
+                <label for="pwd">비밀번호</label>
+                <input type="password" id="pwd" th:field="*{pwd}"
+                       class="form-control" placeholder="비밀번호를 입력하세요">
+                <span th:if="${#fields.hasErrors('pwd')}" th:errors="*{pwd}" class="field-error"></span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top:0.5rem">로그인</button>
+        </form>
+
+        <div class="form-footer">
+            계정이 없으신가요? <a th:href="@{/user/join}">회원가입</a>
+        </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

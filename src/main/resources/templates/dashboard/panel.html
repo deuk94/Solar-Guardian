@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 패널 상태 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container dash-container">
+    <div class="dash-page-head">
+        <h2 class="page-title">AI 패널 상태</h2>
+    </div>
+
+    <div class="dash-main-grid">
+        <div class="card panel-card">
+            <div class="card-title">실시간 영상</div>
+
+            <div class="panel-image-wrap">
+                <img id="liveDetectImage" class="panel-image" th:src="@{/dashboard/panel/live-detect}" alt="AI 탐지 박스가 표시된 실시간 패널 영상">
+            </div>
+        </div>
+
+        <div class="dash-side">
+            <div class="card panel-result-card">
+                <div class="side-label">AI 판독 결과</div>
+                <div class="panel-result-value" id="aiResult"><span class="panel-ai-pending">판독 대기 중</span></div>
+                <div class="stat-sub" id="aiCheckedAt"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    function updateDetection(data) {
+        const resultEl = document.getElementById('aiResult');
+        const timeEl = document.getElementById('aiCheckedAt');
+
+        if (!data || data.detected === undefined) {
+            resultEl.innerHTML = '<span class="panel-ai-pending">판독 대기 중</span>';
+            timeEl.textContent = '';
+            return;
+        }
+
+        if (data.detected) {
+            resultEl.innerHTML = '<span class="badge badge-inactive">오염 감지됨</span>';
+        } else {
+            resultEl.innerHTML = '<span class="badge badge-active">정상</span>';
+        }
+        timeEl.textContent = '판독 시각: ' + data.checkedAt;
+    }
+
+    function poll() {
+        fetch('/api/panel/detection/latest').then(r => r.json()).then(updateDetection);
+    }
+
+    poll();
+    setInterval(poll, 5000);
+
+    // AI 서버(GPU)를 껐다 켜면 그 순간 기존 스트림 연결이 끊기는데, 브라우저가 그걸 자동으로
+    // 재연결하지 않아서 화면이 멈춘 채로 남는 문제가 있었다. 그래서 두 가지로 자동 복구한다:
+    // 1) 스트림 로드 자체가 에러나면 곧바로 재시도
+    // 2) 에러 없이 조용히 멈추는 경우를 대비해, 일정 주기로 강제로 새 연결을 맺음
+    (function () {
+        const liveImage = document.getElementById('liveDetectImage');
+        const baseSrc = liveImage.getAttribute('src');
+
+        function reload() {
+            liveImage.src = baseSrc + (baseSrc.includes('?') ? '&' : '?') + 't=' + Date.now();
+        }
+
+        liveImage.addEventListener('error', function () {
+            setTimeout(reload, 2000);
+        });
+
+        setInterval(reload, 15000);
+    })();
+</script>
+</body>
+</html>

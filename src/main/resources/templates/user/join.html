@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container-sm" style="max-width:560px">
+    <div class="card">
+        <h2 class="card-title">회원가입</h2>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <form th:action="@{/user/join}" th:object="${userJoinDto}" method="post">
+            <!-- 아이디 -->
+            <div class="form-group">
+                <label for="loginId">아이디 <span class="required">*</span></label>
+                <div class="input-action">
+                    <input type="text" id="loginId" th:field="*{loginId}"
+                           class="form-control" placeholder="4~30자">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="checkLoginId()">중복확인</button>
+                </div>
+                <span th:if="${#fields.hasErrors('loginId')}" th:errors="*{loginId}" class="field-error"></span>
+                <span id="loginId-msg"></span>
+            </div>
+
+            <!-- 비밀번호 -->
+            <div class="form-group">
+                <label for="pwd">비밀번호 <span class="required">*</span></label>
+                <input type="password" id="pwd" th:field="*{pwd}"
+                       class="form-control" placeholder="8~20자">
+                <span th:if="${#fields.hasErrors('pwd')}" th:errors="*{pwd}" class="field-error"></span>
+            </div>
+
+            <!-- 이름 + 성별 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">이름 <span class="required">*</span></label>
+                    <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="이름">
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label>성별 <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" th:field="*{gender}" value="M"> 남성
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" th:field="*{gender}" value="F"> 여성
+                        </label>
+                    </div>
+                    <span th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}" class="field-error"></span>
+                </div>
+            </div>
+
+            <!-- 연락처 -->
+            <div class="form-group">
+                <label for="telNo">연락처 <span class="required">*</span></label>
+                <input type="text" id="telNo" th:field="*{telNo}"
+                       class="form-control" placeholder="010-1234-5678">
+                <span th:if="${#fields.hasErrors('telNo')}" th:errors="*{telNo}" class="field-error"></span>
+            </div>
+
+            <!-- 이메일 -->
+            <div class="form-group">
+                <label for="email">이메일 <span class="required">*</span></label>
+                <div class="input-action">
+                    <input type="email" id="email" th:field="*{email}"
+                           class="form-control" placeholder="example@email.com">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="checkEmail()">중복확인</button>
+                </div>
+                <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="field-error"></span>
+                <span id="email-msg"></span>
+            </div>
+
+            <!-- 주소 -->
+            <div class="form-group">
+                <label for="address">주소 <span class="required">*</span></label>
+                <input type="text" id="address" th:field="*{address}"
+                       class="form-control" placeholder="주소를 입력하세요">
+                <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="field-error"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top:0.5rem">가입하기</button>
+        </form>
+
+        <div class="form-footer">
+            이미 계정이 있으신가요? <a th:href="@{/user/login}">로그인</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function checkLoginId() {
+        const val = document.getElementById('loginId').value.trim();
+        const msg = document.getElementById('loginId-msg');
+        if (!val) {
+            setMsg(msg, '아이디를 입력해주세요.', false); return;
+        }
+        fetch('/api/user/check/loginId?loginId=' + encodeURIComponent(val))
+            .then(r => r.json())
+            .then(isDup => setMsg(msg, isDup ? '이미 사용 중인 아이디입니다.' : '사용 가능한 아이디입니다.', !isDup));
+    }
+
+    function checkEmail() {
+        const val = document.getElementById('email').value.trim();
+        const msg = document.getElementById('email-msg');
+        if (!val) { setMsg(msg, '이메일을 입력해주세요.', false); return; }
+        fetch('/api/user/check/email?email=' + encodeURIComponent(val))
+            .then(r => r.json())
+            .then(isDup => setMsg(msg, isDup ? '이미 사용 중인 이메일입니다.' : '사용 가능한 이메일입니다.', !isDup));
+    }
+
+    function setMsg(el, text, ok) {
+        el.textContent = text;
+        el.className = ok ? 'field-ok' : 'field-error';
+    }
+</script>
+</body>
+</html>

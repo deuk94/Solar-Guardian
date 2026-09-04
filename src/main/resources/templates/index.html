@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container">
+    <div class="hero">
+        <h1>&#9728; Solar에 오신 것을 환영합니다</h1>
+        <div class="hero-actions" th:if="${session.loginUser == null}">
+            <a th:href="@{/user/login}" class="btn btn-primary">로그인</a>
+            <a th:href="@{/user/join}" class="btn btn-outline">회원가입</a>
+        </div>
+        <div class="hero-actions" th:if="${session.loginUser != null}">
+            <a th:href="@{/dashboard}" class="btn btn-primary">대시보드 바로가기</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

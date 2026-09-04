@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원정보 수정 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container-sm" style="max-width:560px">
+    <div class="page-header">
+        <h2 class="page-title">회원정보 수정</h2>
+        <a th:href="@{/user/{id}(id=${userId})}" class="btn btn-outline btn-sm">← 상세</a>
+    </div>
+
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <div class="card">
+        <form th:action="@{/user/{id}/edit(id=${userId})}" th:object="${userUpdateDto}" method="post">
+            <!-- 비밀번호 (선택) -->
+            <div class="form-group">
+                <label for="pwd">새 비밀번호</label>
+                <input type="password" id="pwd" th:field="*{pwd}"
+                       class="form-control" placeholder="변경 시에만 입력하세요">
+                <span class="field-hint">입력하지 않으면 기존 비밀번호가 유지됩니다.</span>
+                <span th:if="${#fields.hasErrors('pwd')}" th:errors="*{pwd}" class="field-error"></span>
+            </div>
+
+            <!-- 이름 + 성별 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">이름 <span class="required">*</span></label>
+                    <input type="text" id="name" th:field="*{name}" class="form-control">
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label>성별 <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" th:field="*{gender}" value="M"> 남성
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" th:field="*{gender}" value="F"> 여성
+                        </label>
+                    </div>
+                    <span th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}" class="field-error"></span>
+                </div>
+            </div>
+
+            <!-- 연락처 -->
+            <div class="form-group">
+                <label for="telNo">연락처 <span class="required">*</span></label>
+                <input type="text" id="telNo" th:field="*{telNo}"
+                       class="form-control" placeholder="010-1234-5678">
+                <span th:if="${#fields.hasErrors('telNo')}" th:errors="*{telNo}" class="field-error"></span>
+            </div>
+
+            <!-- 이메일 -->
+            <div class="form-group">
+                <label for="email">이메일 <span class="required">*</span></label>
+                <input type="email" id="email" th:field="*{email}" class="form-control">
+                <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="field-error"></span>
+            </div>
+
+            <!-- 주소 -->
+            <div class="form-group">
+                <label for="address">주소 <span class="required">*</span></label>
+                <input type="text" id="address" th:field="*{address}" class="form-control">
+                <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="field-error"></span>
+            </div>
+
+            <div class="action-bar" style="margin-top:0.5rem">
+                <button type="submit" class="btn btn-primary">저장</button>
+                <a th:href="@{/user/{id}(id=${userId})}" class="btn btn-outline">취소</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

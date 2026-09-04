@@ -1,0 +1,42 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: solar-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root@0000
+      - MYSQL_DATABASE=solar
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # 이 폴더 안의 .sql 파일은 "데이터가 하나도 없는 최초 실행"에만 자동으로 실행됨(=복원 1회용)
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+
+  solar:
+    build: .
+    container_name: solar-app
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+    volumes:
+      # 업로드 파일(공지 첨부, 패널 스냅샷)이 컨테이너 재생성 시 사라지지 않도록 보존
+      - ./uploads:/app/uploads
+    environment:
+      # 컨테이너 기본 타임존이 UTC라 LocalDateTime.now() 등이 9시간씩 밀려서 나오는 걸 방지
+      # (JVM이 TZ 환경변수를 자동 인식하므로 이미지 재빌드 없이 바로 적용됨)
+      - TZ=Asia/Seoul
+      # 같은 docker-compose 안에서는 서비스 이름(mysql)이 그대로 호스트명이 된다.
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/solar
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root@0000
+      # ai/inference_server.py는 컨테이너가 아니라 이 GPU 호스트에서 직접 도는 파이썬 스크립트라,
+      # 컨테이너 안에서는 host.docker.internal로 호스트를 가리켜야 한다 (localhost는 컨테이너 자기 자신).
+      - PANEL_ANNOTATED_STREAM_URL=http://host.docker.internal:8091/
+      # 기상청 API 키 - 저장소에 평문으로 두지 않고 .env(gitignore 대상, .env.example 참고)에서 주입
+      - KMA_API_KEY=${KMA_API_KEY:-}
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

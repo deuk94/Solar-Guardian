@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container">
+    <div class="page-header">
+        <h2 class="page-title">게시판</h2>
+        <a th:if="${session.loginUser != null}"
+           th:href="@{/board/write}" class="btn btn-primary btn-sm">+ 글쓰기</a>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <div th:if="${boardPage.empty}" class="card">
+        <div class="empty-state">등록된 게시글이 없습니다.</div>
+    </div>
+
+    <div th:if="${!boardPage.empty}" class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>번호</th>
+                    <th>제목</th>
+                    <th>작성자</th>
+                    <th>등록일</th>
+                    <th>조회수</th>
+                    <th>댓글</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="board, iterStat : ${boardPage.content}">
+                    <td th:text="${boardPage.totalElements - (boardPage.number * boardPage.size) - iterStat.index}"></td>
+                    <td><a th:href="@{/board/{id}(id=${board.boardId})}" th:text="${board.title}"></a></td>
+                    <td th:text="${board.regBy}"></td>
+                    <td th:text="${#temporals.format(board.regDt, 'yyyy-MM-dd')}"></td>
+                    <td th:text="${board.viewCnt}"></td>
+                    <td th:text="${board.comments.size() > 0} ? '[' + ${board.comments.size()} + ']' : ''" class="comment-count"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pagination(${boardPage}, ${pageBlock}, '/board/list')}"></div>
+</div>
+</body>
+</html>

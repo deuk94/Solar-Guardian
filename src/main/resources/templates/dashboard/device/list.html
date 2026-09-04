@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기기 관리 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container dash-container">
+    <div class="page-header">
+        <div class="dash-page-head" style="margin-bottom: 0;">
+            <h2 class="page-title">기기 관리</h2>
+        </div>
+        <a th:href="@{/dashboard/device/new}" class="btn btn-primary">+ 새 기기 등록</a>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <div th:if="${deviceArrays.isEmpty()}" class="card">
+        <div class="empty-state">등록된 기기가 없습니다.</div>
+    </div>
+
+    <div th:each="entry : ${deviceArrays}" class="device-block">
+        <div class="card device-card">
+            <div class="device-card-main">
+                <div class="device-info">
+                    <div class="device-name" th:text="${entry.key.deviceName}"></div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">시리얼 번호</div>
+                            <div class="info-value" th:text="${entry.key.serialNo}"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">펌웨어</div>
+                            <div class="info-value" th:text="${entry.key.firmwareVersion}"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">모델명</div>
+                            <div class="info-value" th:text="${entry.key.modelName}"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">제조일</div>
+                            <div class="info-value" th:text="${#temporals.format(entry.key.manufacturedDate, 'yyyy-MM-dd')}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="device-actions">
+                    <span th:if="${entry.key.status.name() == 'NORMAL'}" class="badge badge-active" th:text="${entry.key.status.label}"></span>
+                    <span th:if="${entry.key.status.name() == 'ABNORMAL'}" class="badge badge-inactive" th:text="${entry.key.status.label}"></span>
+                    <a th:href="@{/dashboard/device/{id}/edit(id=${entry.key.deviceId})}" class="btn btn-outline btn-sm">상세 설정</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card array-card">
+            <div class="page-header">
+                <div>
+                    <div class="card-title" style="margin-bottom: 0;">패널 설정</div>
+<!--                    <div class="stat-sub" th:text="${entry.key.deviceName} + '에 연결된 패널 어레이'"></div>-->
+                </div>
+            </div>
+
+            <div th:if="${entry.value.isEmpty()}" class="empty-state">등록된 패널이 없습니다.</div>
+
+            <div th:if="${!entry.value.isEmpty()}" class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>패널명</th>
+                            <th>패널 수</th>
+                            <th>설계용량</th>
+                            <th>설치일</th>
+                            <th>설치위치</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="array : ${entry.value}">
+                            <td th:text="${array.arrayName}"></td>
+                            <td th:text="${array.panelCount} + '개'"></td>
+                            <td th:text="${array.designCapacityW} + 'W'"></td>
+                            <td th:text="${#temporals.format(array.installedDate, 'yyyy-MM-dd')}"></td>
+                            <td th:text="${array.installLocation}"></td>
+                            <td style="display: flex; align-items: center; gap: 0.5rem;">
+                                <a th:href="@{/dashboard/device/array/{id}/edit(id=${array.arrayId})}" class="btn btn-outline btn-sm">편집</a>
+                                <form th:action="@{/dashboard/device/array/{id}/delete(id=${array.arrayId})}" method="post"
+                                      onsubmit="return confirm('이 패널 어레이를 삭제하시겠습니까? 삭제하면 복구할 수 없습니다.')"
+                                      style="display: inline-flex;">
+                                    <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="action-bar">
+                <a th:href="@{/dashboard/device/{id}/array/new(id=${entry.key.deviceId})}" class="btn btn-outline btn-sm">+ 패널 추가</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

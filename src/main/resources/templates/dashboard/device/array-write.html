@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>패널 어레이 추가 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container-md">
+    <div class="card">
+        <h2 class="card-title">패널 추가</h2>
+<!--        <p class="stat-sub" style="margin-bottom: 1.2rem;" th:text="${device.deviceName} + '에 새 패널 어레이를 추가합니다.'"></p>-->
+
+        <form th:action="@{/dashboard/device/{id}/array/new(id=${device.deviceId})}" th:object="${panelArrayWriteDto}" method="post">
+            <div class="form-group">
+                <label for="arrayName">패널명 <span class="required">*</span></label>
+                <input type="text" id="arrayName" th:field="*{arrayName}" class="form-control" placeholder="예: 베란다 남향 패널">
+                <span th:if="${#fields.hasErrors('arrayName')}" th:errors="*{arrayName}" class="field-error"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="panelCount">패널 수 <span class="required">*</span></label>
+                    <input type="number" id="panelCount" th:field="*{panelCount}" class="form-control" min="1" placeholder="예: 4">
+                    <span th:if="${#fields.hasErrors('panelCount')}" th:errors="*{panelCount}" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="designCapacityW">설계용량(W) <span class="required">*</span></label>
+                    <input type="number" id="designCapacityW" th:field="*{designCapacityW}" class="form-control" min="1" placeholder="예: 1200">
+                    <span th:if="${#fields.hasErrors('designCapacityW')}" th:errors="*{designCapacityW}" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="installedDate">설치일 <span class="required">*</span></label>
+                    <input type="date" id="installedDate" th:field="*{installedDate}" class="form-control">
+                    <span th:if="${#fields.hasErrors('installedDate')}" th:errors="*{installedDate}" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="installLocation">설치위치 <span class="required">*</span></label>
+                    <input type="text" id="installLocation" th:field="*{installLocation}" class="form-control" placeholder="예: 아파트 베란다 외부">
+                    <span th:if="${#fields.hasErrors('installLocation')}" th:errors="*{installLocation}" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button type="submit" class="btn btn-primary">추가</button>
+                <a th:href="@{/dashboard/device}" class="btn btn-outline">취소</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

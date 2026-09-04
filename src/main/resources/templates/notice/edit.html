@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 수정 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container-md">
+    <div class="card">
+        <h2 class="card-title">공지사항 수정</h2>
+
+        <form th:action="@{/notice/{id}/edit(id=${noticeId})}" th:object="${noticeUpdateDto}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">제목 <span class="required">*</span></label>
+                <input type="text" id="title" th:field="*{title}" class="form-control">
+                <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="content">내용 <span class="required">*</span></label>
+                <textarea id="content" th:field="*{content}" class="form-control" rows="10"></textarea>
+                <span th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="field-error"></span>
+            </div>
+
+            <div class="form-group" th:if="${!notice.files.isEmpty()}">
+                <label>기존 첨부파일</label>
+                <div th:each="file : ${notice.files}" style="margin-bottom:0.4rem;">
+                    <label class="radio-item" style="font-weight:400;">
+                        <input type="checkbox" name="deleteFileIds" th:value="${file.fileId}">
+                        <span th:text="${file.originName}"></span>
+                        <span class="field-hint">(삭제)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="files">첨부파일 추가</label>
+                <input type="file" id="files" name="files" class="form-control" multiple>
+            </div>
+
+            <div class="action-bar">
+                <button type="submit" class="btn btn-primary">수정</button>
+                <a th:href="@{/notice/{id}(id=${noticeId})}" class="btn btn-outline">취소</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

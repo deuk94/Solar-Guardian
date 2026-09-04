@@ -1,0 +1,104 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+CLAUDE.md
+AGENTS.md
+CHANGELOG.md
+TROUBLESHOOTING.md
+
+### macOS ###
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+### 로컬 설정 / 비밀정보 ###
+# 로컬 전용 설정 오버라이드 (DB 비밀번호·API 키는 여기로 분리할 것)
+application-local.properties
+application-secret.properties
+application-*.local.properties
+.env
+.env.*
+!.env.example
+
+# 인증서 / 키 파일
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+
+.claude/
+.agents/
+.mcp.json
+
+# 회원 개인정보(이름·연락처·이메일·해시된 비밀번호)가 들어있는 백업
+mysql-init/
+*_backup.sql
+*_dump.sql
+
+### 업로드된 실제 파일 ###
+uploads/
+
+### AI 학습 산출물 ###
+# 학습 결과 가중치·로그·베이스 모델 파일
+runs/
+ai/runs/
+ai/dataset/**
+!ai/dataset/README.md
+*.pt
+
+### 발표/문서 산출물 ###
+deliverables/
+
+### 테스트/더미 데이터 ###
+sql/dummy_*.sql
+
+### Python (raspberrypi/, ai/) ###
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+*.egg-info/
+
+### 로그 / 임시 산출물 ###
+*.log
+logs/
+tmp/
+cookies.txt

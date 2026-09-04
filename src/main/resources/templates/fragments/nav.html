@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="nav" class="navbar">
+    <a th:href="${session.loginUser != null} ? @{/dashboard} : @{/user/login}" class="nav-brand">
+        <img src="/images/brand/logo-icon.png" alt="" class="nav-brand-icon">
+        <span>Solar Guardian</span>
+    </a>
+    <button type="button" class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="navLinks" onclick="this.closest('.navbar').classList.toggle('nav-open'); this.setAttribute('aria-expanded', this.closest('.navbar').classList.contains('nav-open'));">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+        <div class="nav-center">
+            <th:block th:if="${session.loginUser != null}">
+                <a th:href="@{/dashboard}">대시보드</a>
+                <a th:href="@{/dashboard/panel}">AI 패널 상태</a>
+                <a th:href="@{/dashboard/cleaning}">세척 제어</a>
+                <a th:href="@{/dashboard/alerts}">알림/리포트</a>
+                <a th:href="@{/dashboard/device}">기기 관리</a>
+                <a th:href="@{/board/list}">게시판</a>
+                <a th:href="@{/notice/list}">공지사항</a>
+            </th:block>
+        </div>
+        <div class="nav-right">
+            <th:block th:if="${session.loginUser != null}">
+                <a th:href="@{/user/{id}(id=${session.loginUser.userId})}"
+                   class="nav-user" th:text="${session.loginUser.name} + ' 님'"></a>
+                <a th:href="@{/user/logout}">로그아웃</a>
+            </th:block>
+        </div>
+    </div>
+</nav>
+</body>
+</html>

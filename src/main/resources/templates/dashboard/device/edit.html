@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기기 상세 설정 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container-md">
+    <div class="card">
+        <h2 class="card-title">기기 상세 설정</h2>
+
+        <form id="deviceEditForm" th:action="@{/dashboard/device/{id}/edit(id=${deviceId})}" th:object="${deviceUpdateDto}" method="post">
+            <div class="form-group">
+                <label for="deviceName">기기명 <span class="required">*</span></label>
+                <input type="text" id="deviceName" th:field="*{deviceName}" class="form-control">
+                <span th:if="${#fields.hasErrors('deviceName')}" th:errors="*{deviceName}" class="field-error"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="serialNo">시리얼 번호 <span class="required">*</span></label>
+                    <input type="text" id="serialNo" th:field="*{serialNo}" class="form-control">
+                    <span th:if="${#fields.hasErrors('serialNo')}" th:errors="*{serialNo}" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="firmwareVersion">펌웨어 버전 <span class="required">*</span></label>
+                    <input type="text" id="firmwareVersion" th:field="*{firmwareVersion}" class="form-control">
+                    <span th:if="${#fields.hasErrors('firmwareVersion')}" th:errors="*{firmwareVersion}" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="modelName">모델명 <span class="required">*</span></label>
+                    <input type="text" id="modelName" th:field="*{modelName}" class="form-control">
+                    <span th:if="${#fields.hasErrors('modelName')}" th:errors="*{modelName}" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="manufacturedDate">제조일 <span class="required">*</span></label>
+                    <input type="date" id="manufacturedDate" th:field="*{manufacturedDate}" class="form-control">
+                    <span th:if="${#fields.hasErrors('manufacturedDate')}" th:errors="*{manufacturedDate}" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>상태</label>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" th:field="*{status}" value="NORMAL"> 정상
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" th:field="*{status}" value="ABNORMAL"> 이상
+                    </label>
+                </div>
+            </div>
+
+        </form>
+
+        <div class="action-bar-split">
+            <div class="action-bar">
+                <button type="submit" form="deviceEditForm" class="btn btn-primary">저장</button>
+                <a th:href="@{/dashboard/device}" class="btn btn-outline">취소</a>
+            </div>
+            <form th:action="@{/dashboard/device/{id}/delete(id=${deviceId})}" method="post"
+                  onsubmit="return confirm('이 기기를 삭제하시겠습니까? 등록된 패널 어레이도 함께 삭제되며, 삭제하면 복구할 수 없습니다.')">
+                <button type="submit" class="btn btn-danger">기기 삭제</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

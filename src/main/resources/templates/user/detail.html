@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 상세 - Solar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
+<div class="container-md">
+    <div class="page-header">
+        <h2 class="page-title">회원 상세</h2>
+        <a th:href="@{/dashboard}" class="btn btn-outline btn-sm">← 홈으로</a>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <div class="card">
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">아이디</div>
+                <div class="info-value" th:text="${user.loginId}"></div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">이름</div>
+                <div class="info-value" th:text="${user.name}"></div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">성별</div>
+                <div class="info-value" th:text="${user.gender == 'M' ? '남성' : '여성'}"></div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">연락처</div>
+                <div class="info-value" th:text="${user.telNo}"></div>
+            </div>
+            <div class="info-item info-full">
+                <div class="info-label">이메일</div>
+                <div class="info-value" th:text="${user.email}"></div>
+            </div>
+            <div class="info-item info-full">
+                <div class="info-label">주소</div>
+                <div class="info-value" th:text="${user.address}"></div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">가입일</div>
+                <div class="info-value" th:text="${#temporals.format(user.regDt, 'yyyy-MM-dd HH:mm')}"></div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">상태</div>
+                <div class="info-value">
+                    <span th:if="${user.delYn == 'N'}" class="badge badge-active">정상회원</span>
+                    <span th:if="${user.delYn == 'Y'}" class="badge badge-inactive">탈퇴회원</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-bar" th:if="${user.delYn == 'N'}">
+            <a th:href="@{/user/{id}/edit(id=${user.userId})}" class="btn btn-primary">정보 수정</a>
+            <form th:action="@{/user/{id}/withdraw(id=${user.userId})}" method="post"
+                  onsubmit="return confirm('정말 탈퇴하시겠습니까?')">
+                <button type="submit" class="btn btn-danger">회원 탈퇴</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
