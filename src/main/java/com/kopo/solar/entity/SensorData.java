@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "sensor_data")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

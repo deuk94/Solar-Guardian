@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "cleaning_command")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -34,4 +33,9 @@ public class CleaningCommand {
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
+
+    public void complete() {
+        this.status = CleaningStatus.DONE;
+        this.completedAt = LocalDateTime.now();
+    }
 }

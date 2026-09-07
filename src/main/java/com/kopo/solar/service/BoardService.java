@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,7 +26,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
 
-    // 게시글 목록 (삭제된 것 제외), 페이지네이션
+    // 게시글 목록, 페이지네이션
     public Page<Board> findAll(Pageable pageable) {
         return boardRepository.findByDelYn("N", pageable);
     }
@@ -46,7 +45,7 @@ public class BoardService {
     @Transactional
     public Board viewDetail(Long boardId) {
         Board board = findById(boardId);
-        board.setViewCnt(board.getViewCnt() + 1);
+        board.increaseViewCnt();
         return board;
     }
 
@@ -68,8 +67,7 @@ public class BoardService {
                 .content(dto.getContent())
                 .viewCnt(0L)
                 .build();
-        board.setRegBy(regBy);
-        board.setModBy(regBy);
+        board.stampCreator(regBy);
         return boardRepository.save(board);
     }
 
@@ -77,18 +75,14 @@ public class BoardService {
     @Transactional
     public void update(Long boardId, BoardUpdateDto dto, String modBy) {
         Board board = findById(boardId);
-        board.setTitle(dto.getTitle());
-        board.setContent(dto.getContent());
-        board.setModBy(modBy);
+        board.update(dto.getTitle(), dto.getContent(), modBy);
     }
 
-    // 게시글 소프트 삭제
+    // 게시글 삭제
     @Transactional
     public void delete(Long boardId, String delBy) {
         Board board = findById(boardId);
-        board.setDelYn("Y");
-        board.setDelDt(LocalDateTime.now());
-        board.setDelBy(delBy);
+        board.softDelete(delBy);
     }
 
     // 게시글의 댓글 목록
@@ -105,12 +99,11 @@ public class BoardService {
                 .board(board)
                 .content(dto.getContent())
                 .build();
-        comment.setRegBy(regBy);
-        comment.setModBy(regBy);
+        comment.stampCreator(regBy);
         return commentRepository.save(comment);
     }
 
-    // 댓글 수정 (작성자 본인 또는 관리자만 가능)
+    // 댓글 수정
     @Transactional
     public void updateComment(Long commentId, CommentUpdateDto dto, String loginId, boolean isAdmin) {
         Comment comment = commentRepository.findById(commentId)
@@ -121,11 +114,10 @@ public class BoardService {
         if (!comment.getRegBy().equals(loginId) && !isAdmin) {
             throw new ForbiddenException("본인이 작성한 댓글만 수정할 수 있습니다.");
         }
-        comment.setContent(dto.getContent());
-        comment.setModBy(loginId);
+        comment.update(dto.getContent(), loginId);
     }
 
-    // 댓글 소프트 삭제 (작성자 본인 또는 관리자만 가능)
+    // 댓글 삭제
     @Transactional
     public void deleteComment(Long commentId, String loginId, boolean isAdmin) {
         Comment comment = commentRepository.findById(commentId)
@@ -136,8 +128,6 @@ public class BoardService {
         if (!comment.getRegBy().equals(loginId) && !isAdmin) {
             throw new ForbiddenException("본인이 작성한 댓글만 삭제할 수 있습니다.");
         }
-        comment.setDelYn("Y");
-        comment.setDelDt(LocalDateTime.now());
-        comment.setDelBy(loginId);
+        comment.softDelete(loginId);
     }
 }

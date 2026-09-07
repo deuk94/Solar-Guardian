@@ -6,7 +6,6 @@ import lombok.*;
 @Entity
 @Table(name = "comment")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -24,4 +23,9 @@ public class Comment extends BaseEntity {
     @Lob
     @Column(name = "content", nullable = false)
     private String content;
+
+    public void update(String content, String modBy) {
+        this.content = content;
+        touch(modBy);
+    }
 }

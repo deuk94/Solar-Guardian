@@ -29,8 +29,6 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    /* ─── 목록 ─── */
-
     // 게시글 목록
     @GetMapping("/list")
     public String list(@RequestParam(defaultValue = "0") int page, Model model) {
@@ -40,9 +38,7 @@ public class BoardController {
         return "board/list";
     }
 
-    /* ─── 상세 ─── */
-
-    // 게시글 상세 (조회수 증가)
+    // 게시글 상세
     @GetMapping("/{boardId}")
     public String detail(@PathVariable Long boardId, Model model, RedirectAttributes ra) {
         try {
@@ -57,9 +53,7 @@ public class BoardController {
         }
     }
 
-    /* ─── 작성 ─── */
-
-    // 작성 폼 (로그인 필요)
+    // 작성 폼
     @GetMapping("/write")
     public String writeForm(HttpSession session, Model model, RedirectAttributes ra) {
         if (!isLoggedIn(session)) {
@@ -87,9 +81,7 @@ public class BoardController {
         return "redirect:/board/" + board.getBoardId();
     }
 
-    /* ─── 수정 ─── */
-
-    // 수정 폼 (작성자 본인 또는 관리자)
+    // 수정 폼
     @GetMapping("/{boardId}/edit")
     public String editForm(@PathVariable Long boardId, HttpSession session, Model model, RedirectAttributes ra) {
         try {
@@ -138,9 +130,7 @@ public class BoardController {
         return "redirect:/board/" + boardId;
     }
 
-    /* ─── 삭제 ─── */
-
-    // 삭제 처리 (소프트 삭제)
+    // 삭제 처리
     @PostMapping("/{boardId}/delete")
     public String delete(@PathVariable Long boardId, HttpSession session, RedirectAttributes ra) {
         Board board;
@@ -159,8 +149,6 @@ public class BoardController {
         ra.addFlashAttribute("message", "삭제되었습니다.");
         return "redirect:/board/list";
     }
-
-    /* ─── 권한 체크 ─── */
 
     // 로그인 여부
     private boolean isLoggedIn(HttpSession session) {

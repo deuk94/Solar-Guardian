@@ -36,8 +36,6 @@ public class NoticeController {
 
     private final NoticeService noticeService;
 
-    /* ─── 목록 / 상세 ─── */
-
     // 공지사항 목록 (전체 공개)
     @GetMapping("/list")
     public String list(@RequestParam(defaultValue = "0") int page, Model model) {
@@ -61,9 +59,7 @@ public class NoticeController {
         }
     }
 
-    /* ─── 작성 ─── */
-
-    // 작성 폼 (로그인 필요)
+    // 작성 폼
     @GetMapping("/write")
     public String writeForm(HttpSession session, Model model, RedirectAttributes ra) {
         if (!isLoggedIn(session)) {
@@ -91,9 +87,7 @@ public class NoticeController {
         return "redirect:/notice/" + notice.getNoticeId();
     }
 
-    /* ─── 수정 ─── */
-
-    // 수정 폼 (작성자 본인 또는 관리자)
+    // 수정 폼
     @GetMapping("/{noticeId}/edit")
     public String editForm(@PathVariable Long noticeId, HttpSession session, Model model, RedirectAttributes ra) {
         try {
@@ -147,9 +141,7 @@ public class NoticeController {
         }
     }
 
-    /* ─── 삭제 ─── */
-
-    // 삭제 처리 (소프트 삭제)
+    // 삭제 처리
     @PostMapping("/{noticeId}/delete")
     public String delete(@PathVariable Long noticeId, HttpSession session, RedirectAttributes ra) {
         Notice notice;
@@ -174,9 +166,7 @@ public class NoticeController {
         }
     }
 
-    /* ─── 첨부파일 다운로드 ─── */
-
-    // 첨부파일 다운로드 (전체 공개)
+    // 첨부파일 다운로드
     @GetMapping("/file/{fileId}")
     public ResponseEntity<Resource> download(@PathVariable Long fileId) {
         NoticeFile file = noticeService.findFile(fileId);
@@ -191,9 +181,7 @@ public class NoticeController {
                 .body(resource);
     }
 
-    /* ─── 이미지 미리보기 ─── */
-
-    // 첨부파일 인라인 보기 (전체 공개)
+    // 첨부파일 인라인 보기
     @GetMapping("/file/{fileId}/view")
     public ResponseEntity<Resource> viewImage(@PathVariable Long fileId) {
         NoticeFile file = noticeService.findFile(fileId);
@@ -205,8 +193,6 @@ public class NoticeController {
                 .contentType(mediaType)
                 .body(resource);
     }
-
-    /* ─── 권한 체크 ─── */
 
     // 로그인 여부
     private boolean isLoggedIn(HttpSession session) {

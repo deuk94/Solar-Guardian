@@ -58,12 +58,8 @@ public class DeviceService {
     @Transactional
     public void update(Long deviceId, DeviceUpdateDto dto) {
         Device device = findById(deviceId);
-        device.setDeviceName(dto.getDeviceName());
-        device.setSerialNo(dto.getSerialNo());
-        device.setFirmwareVersion(dto.getFirmwareVersion());
-        device.setModelName(dto.getModelName());
-        device.setManufacturedDate(dto.getManufacturedDate());
-        device.setStatus(dto.getStatus());
+        device.update(dto.getDeviceName(), dto.getSerialNo(), dto.getFirmwareVersion(),
+                dto.getModelName(), dto.getManufacturedDate(), dto.getStatus());
     }
 
     /*

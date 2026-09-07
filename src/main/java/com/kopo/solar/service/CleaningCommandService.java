@@ -80,7 +80,6 @@ public class CleaningCommandService {
     public void complete(Long commandId) {
         CleaningCommand command = cleaningCommandRepository.findById(commandId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 세척 명령입니다."));
-        command.setStatus(CleaningStatus.DONE);
-        command.setCompletedAt(LocalDateTime.now());
+        command.complete();
     }
 }

@@ -29,8 +29,6 @@ public class DeviceController {
     private final DeviceService deviceService;
     private final PanelArrayService panelArrayService;
 
-    /* ─── 목록 ─── */
-
     // 기기 목록 (등록된 패널 어레이 포함)
     @GetMapping
     public String list(HttpSession session, Model model, RedirectAttributes ra) {
@@ -47,8 +45,6 @@ public class DeviceController {
         model.addAttribute("deviceArrays", deviceArrays);
         return "dashboard/device/list";
     }
-
-    /* ─── 기기 등록 ─── */
 
     // 기기 등록 폼
     @GetMapping("/new")
@@ -78,9 +74,7 @@ public class DeviceController {
         return "redirect:/dashboard/device";
     }
 
-    /* ─── 기기 상세 설정(수정) ─── */
-
-    // 기기 수정 폼 (본인 소유만)
+    // 기기 수정 폼
     @GetMapping("/{deviceId}/edit")
     public String editForm(@PathVariable Long deviceId, HttpSession session, Model model, RedirectAttributes ra) {
         Device device;
@@ -133,9 +127,7 @@ public class DeviceController {
         return "redirect:/dashboard/device";
     }
 
-    /* ─── 기기 삭제 ─── */
-
-    // 기기 삭제 (딸린 어레이도 함께 삭제)
+    // 기기 삭제
     @PostMapping("/{deviceId}/delete")
     public String deleteDevice(@PathVariable Long deviceId, HttpSession session, RedirectAttributes ra) {
         Device device;
@@ -153,8 +145,6 @@ public class DeviceController {
         ra.addFlashAttribute("message", "기기가 삭제되었습니다.");
         return "redirect:/dashboard/device";
     }
-
-    /* ─── 어레이 추가 ─── */
 
     // 패널 어레이 추가 폼
     @GetMapping("/{deviceId}/array/new")
@@ -199,8 +189,6 @@ public class DeviceController {
         ra.addFlashAttribute("message", "패널 어레이가 추가되었습니다.");
         return "redirect:/dashboard/device";
     }
-
-    /* ─── 어레이 편집 ─── */
 
     // 패널 어레이 수정 폼
     @GetMapping("/array/{arrayId}/edit")
@@ -256,8 +244,6 @@ public class DeviceController {
         return "redirect:/dashboard/device";
     }
 
-    /* ─── 어레이 삭제 ─── */
-
     // 패널 어레이 삭제
     @PostMapping("/array/{arrayId}/delete")
     public String deleteArray(@PathVariable Long arrayId, HttpSession session, RedirectAttributes ra) {
@@ -276,8 +262,6 @@ public class DeviceController {
         ra.addFlashAttribute("message", "패널 어레이가 삭제되었습니다.");
         return "redirect:/dashboard/device";
     }
-
-    /* ─── 권한 체크 ─── */
 
     // 로그인 여부
     private boolean isLoggedIn(HttpSession session) {

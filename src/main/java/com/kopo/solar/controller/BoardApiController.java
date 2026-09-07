@@ -24,7 +24,7 @@ public class BoardApiController {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    // 댓글 작성 (Ajax)
+    // 댓글 작성
     @PostMapping("/{boardId}/comment")
     public ResponseEntity<Map<String, Object>> writeComment(
             @PathVariable Long boardId,
@@ -44,7 +44,7 @@ public class BoardApiController {
         ));
     }
 
-    // 댓글 수정 (Ajax, 작성자 본인 또는 관리자)
+    // 댓글 수정
     @PutMapping("/comment/{commentId}")
     public ResponseEntity<Map<String, Object>> updateComment(
             @PathVariable Long commentId,
@@ -60,7 +60,7 @@ public class BoardApiController {
         return ResponseEntity.ok(Map.of("content", dto.getContent()));
     }
 
-    // 댓글 삭제 (Ajax, 작성자 본인 또는 관리자)
+    // 댓글 삭제
     @DeleteMapping("/comment/{commentId}")
     public ResponseEntity<Map<String, Object>> deleteComment(
             @PathVariable Long commentId,

@@ -10,7 +10,6 @@ import java.util.Set;
 @Entity
 @Table(name = "notice_file")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

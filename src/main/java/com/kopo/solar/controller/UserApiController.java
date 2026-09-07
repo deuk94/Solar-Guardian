@@ -14,13 +14,13 @@ public class UserApiController {
 
     private final UserService userService;
 
-    // 아이디 중복확인 (Ajax)
+    // 아이디 중복확인
     @GetMapping("/check/loginId")
     public boolean checkLoginId(@RequestParam String loginId) {
         return userService.isLoginIdDuplicate(loginId);
     }
 
-    // 이메일 중복확인 (Ajax)
+    // 이메일 중복확인
     @GetMapping("/check/email")
     public boolean checkEmail(@RequestParam String email) {
         return userService.isEmailDuplicate(email);

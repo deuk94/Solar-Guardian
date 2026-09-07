@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "panel_snapshot")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

@@ -24,8 +24,6 @@ public class CleaningApiController {
     @Value("${sensor.api-key}")
     private String apiKey;
 
-    /* ─── 대시보드 화면 상태 폴링(세션 기반) ─── */
-
     // 세척 상태 폴링 (대시보드 화면)
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> status(HttpSession session) {
@@ -44,8 +42,6 @@ public class CleaningApiController {
                 "completedAt", latest.getCompletedAt() != null ? latest.getCompletedAt().format(FMT) : ""
         ));
     }
-
-    /* ─── 라즈베리파이 폴링/완료 보고(API 키 기반) ─── */
 
     // 대기 중인 세척 명령 폴링 (라즈베리파이)
     @GetMapping("/pending")
@@ -71,8 +67,6 @@ public class CleaningApiController {
         cleaningCommandService.complete(commandId);
         return ResponseEntity.ok(Map.of("success", true));
     }
-
-    /* ─── AI 추론 서버의 자동 세척 요청(API 키 기반) ─── */
 
     // AI가 오염 연속 감지 시 자동 세척 요청 (GPU 추론 서버)
     @PostMapping("/request")

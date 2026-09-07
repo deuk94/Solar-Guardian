@@ -52,11 +52,8 @@ public class PanelArrayService {
     @Transactional
     public void update(Long arrayId, PanelArrayUpdateDto dto) {
         PanelArray array = findById(arrayId);
-        array.setArrayName(dto.getArrayName());
-        array.setPanelCount(dto.getPanelCount());
-        array.setDesignCapacityW(dto.getDesignCapacityW());
-        array.setInstalledDate(dto.getInstalledDate());
-        array.setInstallLocation(dto.getInstallLocation());
+        array.update(dto.getArrayName(), dto.getPanelCount(), dto.getDesignCapacityW(),
+                dto.getInstalledDate(), dto.getInstallLocation());
     }
 
     // panel_array는 BaseEntity 상속 안 해서 소프트 삭제 대상 아님 - 실제 row 삭제

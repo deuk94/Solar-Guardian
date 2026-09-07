@@ -40,7 +40,7 @@ public class PanelController {
         return "dashboard/panel";
     }
 
-    // mjpg-streamer 원본 영상 그대로 중계 (탐지 박스 없음)
+    // mjpg-streamer 원본 영상 그대로 중계
     @GetMapping("/live")
     public ResponseEntity<StreamingResponseBody> live(HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -60,7 +60,7 @@ public class PanelController {
         return proxyStream(annotatedStreamUrl);
     }
 
-    // 원본 스트림 서버에 연결해서 응답 바디를 그대로 클라이언트로 흘려보냄 (MJPEG 프록시)
+    // 원본 스트림 서버에 연결해서 응답 바디를 그대로 클라이언트로 흘려보냄
     private ResponseEntity<StreamingResponseBody> proxyStream(String url) {
         HttpURLConnection conn;
         String contentType;

@@ -23,8 +23,6 @@ public class UserController {
 
     private final UserService userService;
 
-    /* ─── 회원가입 ─── */
-
     // 회원가입 폼
     @GetMapping("/join")
     public String joinForm(Model model) {
@@ -47,8 +45,6 @@ public class UserController {
             return "redirect:/user/join";
         }
     }
-
-    /* ─── 로그인 / 로그아웃 ─── */
 
     // 로그인 폼
     @GetMapping("/login")
@@ -81,16 +77,12 @@ public class UserController {
         return "redirect:/user/login";
     }
 
-    /* ─── 회원 상세 ─── */
-
     // 회원 상세 조회
     @GetMapping("/{userId}")
     public String detail(@PathVariable Long userId, Model model) {
         model.addAttribute("user", userService.findById(userId));
         return "user/detail";
     }
-
-    /* ─── 회원정보 수정 ─── */
 
     // 회원정보 수정 폼
     @GetMapping("/{userId}/edit")
@@ -126,8 +118,6 @@ public class UserController {
             return "redirect:/user/" + userId + "/edit";
         }
     }
-
-    /* ─── 회원탈퇴 ─── */
 
     // 회원 탈퇴 처리
     @PostMapping("/{userId}/withdraw")

@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "panel_array")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -48,4 +47,13 @@ public class PanelArray {
     @UpdateTimestamp
     @Column(name = "mod_dt", nullable = false)
     private LocalDateTime modDt;
+
+    public void update(String arrayName, Integer panelCount, Integer designCapacityW,
+                        LocalDate installedDate, String installLocation) {
+        this.arrayName = arrayName;
+        this.panelCount = panelCount;
+        this.designCapacityW = designCapacityW;
+        this.installedDate = installedDate;
+        this.installLocation = installLocation;
+    }
 }

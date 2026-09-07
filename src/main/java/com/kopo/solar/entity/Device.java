@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "device")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -52,4 +51,14 @@ public class Device {
     @UpdateTimestamp
     @Column(name = "mod_dt", nullable = false)
     private LocalDateTime modDt;
+
+    public void update(String deviceName, String serialNo, String firmwareVersion,
+                        String modelName, LocalDate manufacturedDate, DeviceStatus status) {
+        this.deviceName = deviceName;
+        this.serialNo = serialNo;
+        this.firmwareVersion = firmwareVersion;
+        this.modelName = modelName;
+        this.manufacturedDate = manufacturedDate;
+        this.status = status;
+    }
 }

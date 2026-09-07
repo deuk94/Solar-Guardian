@@ -99,8 +99,6 @@ public class WeatherService {
         }
     }
 
-    /* ─── 단기예보 (오늘~모레, 시간별) ─── */
-
     // 최신 단기예보 조회해서 지금 시각 이후 24개 시간대로 정리
     private List<HourlySlot> fetchHourly() {
         LocalDateTime base = latestVilageBaseTime(LocalDateTime.now());
@@ -191,8 +189,6 @@ public class WeatherService {
             default -> "CLEAR";
         };
     }
-
-    /* ─── 중기예보 (모레 이후~10일, 일별) + 단기예보 기반 오늘/내일 ─── */
 
     // 오늘~모레는 단기예보, 3~9일 후는 중기예보에서 가져와 10일치로 합침
     private List<DailySlot> fetchDaily() {
@@ -379,8 +375,6 @@ public class WeatherService {
             case SUNDAY -> "일";
         };
     }
-
-    /* ─── HTTP 호출 ─── */
 
     /*
      * 서비스키가 이미 퍼센트인코딩된 값이라 UriComponentsBuilder 거치면 깨짐 (원인은 TROUBLESHOOTING.md)

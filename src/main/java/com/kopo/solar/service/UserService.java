@@ -50,8 +50,7 @@ public class UserService {
                 .email(dto.getEmail())
                 .build();
 
-        user.setRegBy(dto.getLoginId());
-        user.setModBy(dto.getLoginId());
+        user.stampCreator(dto.getLoginId());
 
         userRepository.save(user);
     }
@@ -82,23 +81,17 @@ public class UserService {
     public void update(Long userId, UserUpdateDto dto, String modBy) {
         User user = findById(userId);
 
-        if (dto.getPwd() != null && !dto.getPwd().isBlank()) {
-            user.setPwd(PasswordUtil.encode(dto.getPwd()));
-        }
+        boolean pwdProvided = dto.getPwd() != null && !dto.getPwd().isBlank();
+        String pwdHash = pwdProvided ? PasswordUtil.encode(dto.getPwd()) : null;
 
-        user.setTelNo(dto.getTelNo());
-        user.setAddress(dto.getAddress());
-        user.setEmail(dto.getEmail());
-        user.setModBy(modBy);
+        user.updateProfile(pwdHash, dto.getTelNo(), dto.getAddress(), dto.getEmail(), modBy);
     }
 
-    // 회원 탈퇴 (소프트 삭제)
+    // 회원 탈퇴
     @Transactional
     public void withdraw(Long userId, String delBy) {
         User user = findById(userId);
-        user.setDelYn("Y");
-        user.setDelDt(LocalDateTime.now());
-        user.setDelBy(delBy);
+        user.softDelete(delBy);
     }
 
     // 로그인 id 중복 여부 (Ajax 중복확인용)

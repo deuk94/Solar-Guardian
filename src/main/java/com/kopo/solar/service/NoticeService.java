@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -46,7 +45,7 @@ public class NoticeService {
     @Transactional
     public Notice viewDetail(Long noticeId) {
         Notice notice = findById(noticeId);
-        notice.setViewCnt(notice.getViewCnt() + 1);
+        notice.increaseViewCnt();
         return notice;
     }
 
@@ -68,8 +67,7 @@ public class NoticeService {
                 .content(dto.getContent())
                 .viewCnt(0L)
                 .build();
-        notice.setRegBy(regBy);
-        notice.setModBy(regBy);
+        notice.stampCreator(regBy);
 
         noticeRepository.save(notice);
         addFiles(notice, dto.getFiles(), regBy);
@@ -82,9 +80,7 @@ public class NoticeService {
     public void update(Long noticeId, NoticeUpdateDto dto, String modBy) {
         Notice notice = findById(noticeId);
 
-        notice.setTitle(dto.getTitle());
-        notice.setContent(dto.getContent());
-        notice.setModBy(modBy);
+        notice.update(dto.getTitle(), dto.getContent(), modBy);
 
         if (dto.getDeleteFileIds() != null) {
             List<NoticeFile> targets = notice.getFiles().stream()
@@ -109,9 +105,7 @@ public class NoticeService {
         }
         notice.getFiles().clear();
 
-        notice.setDelYn("Y");
-        notice.setDelDt(LocalDateTime.now());
-        notice.setDelBy(delBy);
+        notice.softDelete(delBy);
     }
 
     // 첨부파일 조회

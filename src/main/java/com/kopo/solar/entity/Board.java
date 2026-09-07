@@ -9,7 +9,6 @@ import java.util.List;
 @Entity
 @Table(name = "board")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -33,4 +32,14 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
+
+    public void update(String title, String content, String modBy) {
+        this.title = title;
+        this.content = content;
+        touch(modBy);
+    }
+
+    public void increaseViewCnt() {
+        this.viewCnt++;
+    }
 }

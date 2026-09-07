@@ -34,8 +34,6 @@ public class PanelApiController {
     @Value("${sensor.api-key}")
     private String apiKey;
 
-    /* ─── 라즈베리파이 업로드(API 키 기반) ─── */
-
     // 패널 스냅샷 업로드 (라즈베리파이)
     @PostMapping("/api/panel/snapshot")
     public ResponseEntity<Map<String, Object>> upload(
@@ -51,8 +49,6 @@ public class PanelApiController {
         return ResponseEntity.ok(Map.of("success", true, "snapshotId", snapshot.getSnapshotId()));
     }
 
-    /* ─── AI 추론 서버의 실시간 탐지 상태 보고(API 키 기반) ─── */
-
     // AI 실시간 오염 탐지 상태 보고 (GPU 추론 서버)
     @PostMapping("/api/panel/detection")
     public ResponseEntity<Map<String, Object>> reportDetection(
@@ -67,8 +63,6 @@ public class PanelApiController {
         PanelDetection detection = panelDetectionService.save(loginId, detected, confidence);
         return ResponseEntity.ok(Map.of("success", true, "detectionId", detection.getDetectionId()));
     }
-
-    /* ─── 대시보드 화면(세션 기반) ─── */
 
     // 최신 오염 탐지 상태 (패널 화면 5초 폴링)
     @GetMapping("/api/panel/detection/latest")
@@ -105,7 +99,7 @@ public class PanelApiController {
         ));
     }
 
-    // 스냅샷 이미지 조회 (본인 소유만)
+    // 스냅샷 이미지 조회
     @GetMapping("/dashboard/panel/{snapshotId}/image")
     public ResponseEntity<Resource> image(@PathVariable Long snapshotId, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");

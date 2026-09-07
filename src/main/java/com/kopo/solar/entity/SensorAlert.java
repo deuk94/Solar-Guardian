@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "sensor_alert")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

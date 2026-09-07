@@ -6,7 +6,6 @@ import lombok.*;
 @Entity
 @Table(name = "users")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -41,4 +40,15 @@ public class User extends BaseEntity {
 
     @Column(name = "email", nullable = false, length = 100)
     private String email;
+
+    // 회원정보 수정 - pwd가 null이면 비밀번호는 그대로 유지 (빈 값 처리는 서비스에서 미리 판단해서 넘김)
+    public void updateProfile(String pwd, String telNo, String address, String email, String modBy) {
+        if (pwd != null) {
+            this.pwd = pwd;
+        }
+        this.telNo = telNo;
+        this.address = address;
+        this.email = email;
+        touch(modBy);
+    }
 }

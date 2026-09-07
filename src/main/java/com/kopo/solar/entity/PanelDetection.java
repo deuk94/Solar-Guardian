@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "panel_detection")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
