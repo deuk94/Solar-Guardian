@@ -2,6 +2,7 @@ package com.kopo.solar.service;
 
 import com.kopo.solar.entity.PanelSnapshot;
 import com.kopo.solar.entity.User;
+import com.kopo.solar.exception.NotFoundException;
 import com.kopo.solar.repository.PanelSnapshotRepository;
 import com.kopo.solar.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,7 @@ public class PanelSnapshotService {
     @Transactional
     public PanelSnapshot save(String loginId, MultipartFile file, LocalDateTime capturedAt) {
         User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 회원입니다."));
 
         Path stored = store(file);
 
@@ -54,7 +55,7 @@ public class PanelSnapshotService {
     // 스냅샷 조회, 없으면 예외
     public PanelSnapshot findById(Long snapshotId) {
         return panelSnapshotRepository.findById(snapshotId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스냅샷입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 스냅샷입니다."));
     }
 
     // 업로드 파일을 UUID 이름으로 저장

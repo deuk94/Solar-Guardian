@@ -4,6 +4,7 @@ import com.kopo.solar.dto.PanelArrayUpdateDto;
 import com.kopo.solar.dto.PanelArrayWriteDto;
 import com.kopo.solar.entity.Device;
 import com.kopo.solar.entity.PanelArray;
+import com.kopo.solar.exception.NotFoundException;
 import com.kopo.solar.repository.PanelArrayRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class PanelArrayService {
     // 패널 어레이 조회, 없으면 예외
     public PanelArray findById(Long arrayId) {
         return panelArrayRepository.findById(arrayId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 패널 어레이입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 패널 어레이입니다."));
     }
 
     // 기기에 패널 어레이 새로 등록

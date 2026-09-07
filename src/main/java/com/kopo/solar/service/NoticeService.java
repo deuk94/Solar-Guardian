@@ -4,6 +4,7 @@ import com.kopo.solar.dto.NoticeUpdateDto;
 import com.kopo.solar.dto.NoticeWriteDto;
 import com.kopo.solar.entity.Notice;
 import com.kopo.solar.entity.NoticeFile;
+import com.kopo.solar.exception.NotFoundException;
 import com.kopo.solar.repository.NoticeFileRepository;
 import com.kopo.solar.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +35,9 @@ public class NoticeService {
     // 공지사항 조회, 삭제됐거나 없으면 예외
     public Notice findById(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공지사항입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 공지사항입니다."));
         if ("Y".equals(notice.getDelYn())) {
-            throw new IllegalArgumentException("존재하지 않는 공지사항입니다.");
+            throw new NotFoundException("존재하지 않는 공지사항입니다.");
         }
         return notice;
     }
@@ -116,7 +117,7 @@ public class NoticeService {
     // 첨부파일 조회
     public NoticeFile findFile(Long fileId) {
         return noticeFileRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 첨부파일입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 첨부파일입니다."));
     }
 
     // 업로드된 파일들을 저장하고 공지사항에 첨부파일로 연결

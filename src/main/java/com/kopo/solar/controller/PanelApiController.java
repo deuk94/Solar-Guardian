@@ -47,12 +47,8 @@ public class PanelApiController {
         if (!apiKey.equals(key)) {
             return ResponseEntity.status(403).body(Map.of("error", "유효하지 않은 API 키입니다."));
         }
-        try {
-            PanelSnapshot snapshot = panelSnapshotService.save(loginId, file, capturedAt);
-            return ResponseEntity.ok(Map.of("success", true, "snapshotId", snapshot.getSnapshotId()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        PanelSnapshot snapshot = panelSnapshotService.save(loginId, file, capturedAt);
+        return ResponseEntity.ok(Map.of("success", true, "snapshotId", snapshot.getSnapshotId()));
     }
 
     /* ─── AI 추론 서버의 실시간 탐지 상태 보고(API 키 기반) ─── */
@@ -68,12 +64,8 @@ public class PanelApiController {
         if (!apiKey.equals(key)) {
             return ResponseEntity.status(403).body(Map.of("error", "유효하지 않은 API 키입니다."));
         }
-        try {
-            PanelDetection detection = panelDetectionService.save(loginId, detected, confidence);
-            return ResponseEntity.ok(Map.of("success", true, "detectionId", detection.getDetectionId()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        PanelDetection detection = panelDetectionService.save(loginId, detected, confidence);
+        return ResponseEntity.ok(Map.of("success", true, "detectionId", detection.getDetectionId()));
     }
 
     /* ─── 대시보드 화면(세션 기반) ─── */

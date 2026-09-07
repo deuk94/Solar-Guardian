@@ -3,6 +3,8 @@ package com.kopo.solar.service;
 import com.kopo.solar.entity.CleaningCommand;
 import com.kopo.solar.entity.CleaningStatus;
 import com.kopo.solar.entity.User;
+import com.kopo.solar.exception.ConflictException;
+import com.kopo.solar.exception.NotFoundException;
 import com.kopo.solar.repository.CleaningCommandRepository;
 import com.kopo.solar.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +32,10 @@ public class CleaningCommandService {
     @Transactional
     public CleaningCommand request(Long userId) {
         if (cleaningCommandRepository.findFirstByUser_UserIdAndStatus(userId, CleaningStatus.PENDING).isPresent()) {
-            throw new IllegalArgumentException("이미 진행 중인 세척 요청이 있습니다.");
+            throw new ConflictException("이미 진행 중인 세척 요청이 있습니다.");
         }
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 회원입니다."));
 
         CleaningCommand command = CleaningCommand.builder()
                 .user(user)
@@ -56,13 +58,13 @@ public class CleaningCommandService {
     @Transactional
     public CleaningCommand requestAuto(String loginId) {
         User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 회원입니다."));
 
         CleaningCommand latest = findLatest(user.getUserId());
         if (latest != null && latest.getStatus() == CleaningStatus.DONE
                 && latest.getCompletedAt() != null
                 && latest.getCompletedAt().isAfter(LocalDateTime.now().minusMinutes(cooldownMinutes))) {
-            throw new IllegalArgumentException("최근 세척 완료 후 대기 시간(쿨다운) 중입니다.");
+            throw new ConflictException("최근 세척 완료 후 대기 시간(쿨다운) 중입니다.");
         }
         return request(user.getUserId());
     }
@@ -77,7 +79,7 @@ public class CleaningCommandService {
     @Transactional
     public void complete(Long commandId) {
         CleaningCommand command = cleaningCommandRepository.findById(commandId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 세척 명령입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 세척 명령입니다."));
         command.setStatus(CleaningStatus.DONE);
         command.setCompletedAt(LocalDateTime.now());
     }

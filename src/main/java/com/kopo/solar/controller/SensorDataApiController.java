@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
@@ -33,22 +32,13 @@ public class SensorDataApiController {
     @PostMapping("/data")
     public ResponseEntity<Map<String, Object>> receive(
             @RequestHeader("X-API-KEY") String key,
-            @Valid @RequestBody SensorDataDto dto,
-            BindingResult result) {
+            @Valid @RequestBody SensorDataDto dto) {
 
         if (!apiKey.equals(key)) {
             return ResponseEntity.status(403).body(Map.of("error", "유효하지 않은 API 키입니다."));
         }
-        if (result.hasErrors()) {
-            String msg = result.getFieldErrors().get(0).getDefaultMessage();
-            return ResponseEntity.badRequest().body(Map.of("error", msg));
-        }
-        try {
-            sensorDataService.save(dto);
-            return ResponseEntity.ok(Map.of("success", true));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        sensorDataService.save(dto);
+        return ResponseEntity.ok(Map.of("success", true));
     }
 
     // 최신 측정값

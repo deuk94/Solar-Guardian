@@ -3,6 +3,7 @@ package com.kopo.solar.service;
 import com.kopo.solar.dto.SensorDataDto;
 import com.kopo.solar.entity.SensorData;
 import com.kopo.solar.entity.User;
+import com.kopo.solar.exception.NotFoundException;
 import com.kopo.solar.repository.SensorDataRepository;
 import com.kopo.solar.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class SensorDataService {
     @Transactional
     public SensorData save(SensorDataDto dto) {
         User user = userRepository.findByLoginId(dto.getLoginId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 회원입니다."));
 
         SensorData sensorData = SensorData.builder()
                 .user(user)

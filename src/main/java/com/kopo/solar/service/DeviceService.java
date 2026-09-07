@@ -5,6 +5,7 @@ import com.kopo.solar.dto.DeviceWriteDto;
 import com.kopo.solar.entity.Device;
 import com.kopo.solar.entity.DeviceStatus;
 import com.kopo.solar.entity.User;
+import com.kopo.solar.exception.NotFoundException;
 import com.kopo.solar.repository.DeviceRepository;
 import com.kopo.solar.repository.PanelArrayRepository;
 import com.kopo.solar.repository.UserRepository;
@@ -31,14 +32,14 @@ public class DeviceService {
     // 기기 조회, 없으면 예외
     public Device findById(Long deviceId) {
         return deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기기입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 기기입니다."));
     }
 
     // 새 기기 등록, 상태는 항상 NORMAL로 시작
     @Transactional
     public Device create(Long userId, DeviceWriteDto dto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 회원입니다."));
 
         Device device = Device.builder()
                 .user(user)

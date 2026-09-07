@@ -2,6 +2,7 @@ package com.kopo.solar.service;
 
 import com.kopo.solar.entity.PanelDetection;
 import com.kopo.solar.entity.User;
+import com.kopo.solar.exception.NotFoundException;
 import com.kopo.solar.repository.PanelDetectionRepository;
 import com.kopo.solar.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class PanelDetectionService {
     @Transactional
     public PanelDetection save(String loginId, boolean detected, Double confidence) {
         User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 회원입니다."));
 
         PanelDetection detection = PanelDetection.builder()
                 .user(user)

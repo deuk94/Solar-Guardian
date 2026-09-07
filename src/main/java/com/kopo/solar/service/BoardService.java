@@ -6,6 +6,8 @@ import com.kopo.solar.dto.CommentUpdateDto;
 import com.kopo.solar.dto.CommentWriteDto;
 import com.kopo.solar.entity.Board;
 import com.kopo.solar.entity.Comment;
+import com.kopo.solar.exception.ForbiddenException;
+import com.kopo.solar.exception.NotFoundException;
 import com.kopo.solar.repository.BoardRepository;
 import com.kopo.solar.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +35,9 @@ public class BoardService {
     // 게시글 조회, 삭제됐거나 없으면 예외
     public Board findById(Long boardId) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
         if ("Y".equals(board.getDelYn())) {
-            throw new IllegalArgumentException("존재하지 않는 게시글입니다.");
+            throw new NotFoundException("존재하지 않는 게시글입니다.");
         }
         return board;
     }
@@ -112,12 +114,12 @@ public class BoardService {
     @Transactional
     public void updateComment(Long commentId, CommentUpdateDto dto, String loginId, boolean isAdmin) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
         if ("Y".equals(comment.getDelYn())) {
-            throw new IllegalArgumentException("존재하지 않는 댓글입니다.");
+            throw new NotFoundException("존재하지 않는 댓글입니다.");
         }
         if (!comment.getRegBy().equals(loginId) && !isAdmin) {
-            throw new IllegalArgumentException("본인이 작성한 댓글만 수정할 수 있습니다.");
+            throw new ForbiddenException("본인이 작성한 댓글만 수정할 수 있습니다.");
         }
         comment.setContent(dto.getContent());
         comment.setModBy(loginId);
@@ -127,12 +129,12 @@ public class BoardService {
     @Transactional
     public void deleteComment(Long commentId, String loginId, boolean isAdmin) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
         if ("Y".equals(comment.getDelYn())) {
-            throw new IllegalArgumentException("존재하지 않는 댓글입니다.");
+            throw new NotFoundException("존재하지 않는 댓글입니다.");
         }
         if (!comment.getRegBy().equals(loginId) && !isAdmin) {
-            throw new IllegalArgumentException("본인이 작성한 댓글만 삭제할 수 있습니다.");
+            throw new ForbiddenException("본인이 작성한 댓글만 삭제할 수 있습니다.");
         }
         comment.setDelYn("Y");
         comment.setDelDt(LocalDateTime.now());

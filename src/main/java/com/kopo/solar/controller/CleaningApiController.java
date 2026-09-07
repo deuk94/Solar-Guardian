@@ -68,12 +68,8 @@ public class CleaningApiController {
         if (!apiKey.equals(key)) {
             return ResponseEntity.status(403).body(Map.of("error", "유효하지 않은 API 키입니다."));
         }
-        try {
-            cleaningCommandService.complete(commandId);
-            return ResponseEntity.ok(Map.of("success", true));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        cleaningCommandService.complete(commandId);
+        return ResponseEntity.ok(Map.of("success", true));
     }
 
     /* ─── AI 추론 서버의 자동 세척 요청(API 키 기반) ─── */
@@ -85,11 +81,7 @@ public class CleaningApiController {
         if (!apiKey.equals(key)) {
             return ResponseEntity.status(403).body(Map.of("error", "유효하지 않은 API 키입니다."));
         }
-        try {
-            CleaningCommand command = cleaningCommandService.requestAuto(loginId);
-            return ResponseEntity.ok(Map.of("success", true, "commandId", command.getCommandId()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        CleaningCommand command = cleaningCommandService.requestAuto(loginId);
+        return ResponseEntity.ok(Map.of("success", true, "commandId", command.getCommandId()));
     }
 }
