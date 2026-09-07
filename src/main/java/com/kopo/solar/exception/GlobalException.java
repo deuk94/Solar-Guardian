@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
-// /api/** REST 컨트롤러에서 던진 예외를 한 곳에서 받아 ErrorEntity(errorCode, message)로 변환
-// 화면(Thymeleaf) 컨트롤러는 대상이 아님 - 거긴 실패 시 리다이렉트 경로가 케이스마다 달라서 지금처럼 try-catch 유지
 @RestControllerAdvice
 public class GlobalException {
 
@@ -48,7 +46,6 @@ public class GlobalException {
         return new ResponseEntity<>(errorEntity, HttpStatus.BAD_REQUEST);
     }
 
-    // 아직 세분화 안 하고 IllegalArgumentException을 직접 던지는 곳이 있으면 여기서 받음
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorEntity> illegalArgumentExceptionHandle(IllegalArgumentException ex) {
         ErrorEntity errorEntity = new ErrorEntity("INVALID_INPUT_VALUE", ex.getMessage());
