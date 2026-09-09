@@ -31,7 +31,7 @@ CURRENT_JITTER = 0.4                   # 곡선 값에 더할 잡음 폭(A)
 # 이상치 발생 확률과 범위 (서버 sensor.threshold.*를 벗어나는 값 - 알림 기능 테스트용)
 # 전압 저하는 실제로 잘 발생하지 않고 주 목적(패널 세척 필요 여부 감지)과도 무관해서
 # 전류만 확률적으로 이상치 발생시킴
-ANOMALY_CHANCE = 0.03
+ANOMALY_CHANCE = 0.004
 ANOMALY_CURRENT_LOW = (-2.0, -0.1)    # threshold current-min(0.0) 미만 - 패널 오염 등 발전량 저하 시나리오
 ANOMALY_CURRENT_HIGH = (10.5, 15.0)   # threshold current-max(10.0) 초과
 

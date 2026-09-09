@@ -1,0 +1,47 @@
+package com.kopo.solar.board.entity;
+
+import com.kopo.solar.common.BaseEntity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "board")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Board extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "board_id")
+    private Long boardId;
+
+    @Column(name = "title", nullable = false, length = 200)
+    private String title;
+
+    @Lob
+    @Column(name = "content", nullable = false)
+    private String content;
+
+    @Column(name = "view_cnt", nullable = false)
+    private Long viewCnt;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>();
+
+    public void update(String title, String content, String modBy) {
+        this.title = title;
+        this.content = content;
+        touch(modBy);
+    }
+
+    public void increaseViewCnt() {
+        this.viewCnt++;
+    }
+}

@@ -88,13 +88,15 @@ def frame_grabber_loop():
 def detect_dirty(results, trigger_class_ids):
     # 트리거 클래스 중 가장 높은 confidence로 오염 여부 판정
     best_confidence = None
+    best_cls_id = None
     for box in results[0].boxes:
         if int(box.cls) in trigger_class_ids:
             conf = float(box.conf)
             if best_confidence is None or conf > best_confidence:
                 best_confidence = conf
+                best_cls_id = int(box.cls)
     detected = best_confidence is not None and best_confidence >= CONFIDENCE_THRESHOLD
-    return detected, best_confidence
+    return detected, best_confidence, best_cls_id
 
 
 def extract_boxes(results):
@@ -266,11 +268,12 @@ def main():
         results = model.predict(frame, verbose=False)
         with latest_boxes_lock:
             latest_boxes[:] = extract_boxes(results)
-        detected, confidence = detect_dirty(results, trigger_class_ids)
+        detected, confidence, cls_id = detect_dirty(results, trigger_class_ids)
+        class_name = model.names[cls_id] if cls_id is not None else "?"
 
         if detected:
             consecutive_hits += 1
-            print(f"[{datetime.now()}] 오염 감지 ({consecutive_hits}/{CONSECUTIVE_FRAMES_REQUIRED})")
+            print(f"[{datetime.now()}] 오염 감지({class_name}) ({consecutive_hits}/{CONSECUTIVE_FRAMES_REQUIRED})")
         else:
             consecutive_hits = 0
 
